@@ -332,7 +332,6 @@ echo "======= Change permissions of wp-config ============"
 if [-f /var/www/$domain_name/wp-config.php] then;
 	cd /var/www/$domain_name/
 	chmod 0600 wp-config.php
-	
 fi
 # remove config file
 rm -f etc/nginx/sites-enabled/$domain_name.conf
