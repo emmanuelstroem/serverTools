@@ -337,7 +337,7 @@ rm -f etc/nginx/sites-enabled/$domain_name.conf
 rm -f etc/nginx/sites-available/$domain_name.conf
 
 #Config file
-echo "======= Crewating NGINX $domain_name.conf ============"
+echo "======= Creating NGINX $domain_name.conf ============"
 echo "
 	server {
     listen 80;
@@ -349,17 +349,17 @@ echo "
     server_name $domain_name.com;
 
     location / {
-        try_files $'uri $'uri/ /index.php?$'query_string;
+        try_files $\uri $\uri/ /index.php?$\query_string;
     }
 
     location /phpmyadmin {
             root /usr/share/nginx/html;
             location ~ ^/phpmyadmin/(.+\.php)$ {
-                    try_files $'uri =404;
+                    try_files $\uri =404;
                     root /usr/share/nginx/html;
                     fastcgi_pass unix:/run/php/php7.1-fpm.sock;
                     fastcgi_index index.php;
-                    fastcgi_param SCRIPT_FILENAME $'document_root$'fastcgi_script_name;
+                    fastcgi_param SCRIPT_FILENAME $\document_root$\fastcgi_script_name;
                     include /etc/nginx/fastcgi_params;
             }
             location ~* ^/phpmyadmin/(.+\.(jpg|jpeg|gif|css|png|js|ico|html|xml|txt))$ {
@@ -368,16 +368,17 @@ echo "
     }
 
     location ~ \.php$ {
-        try_files $'uri /index.php =404;
+        try_files $\uri /index.php =404;
         fastcgi_split_path_info ^(.+\.php)(/.+)$;
         fastcgi_pass unix:/run/php/php7.1-fpm.sock;
         fastcgi_index index.php;
-        fastcgi_param SCRIPT_FILENAME $'document_root$'fastcgi_script_name;
+        fastcgi_param SCRIPT_FILENAME $\document_root$\fastcgi_script_name;
         include fastcgi_params;
     }
 } " >>/etc/nginx/sites-available/$domain_name.conf
 
-ln -s /etc/nginx/sites-available/$domain_name.conf etc/nginx/sites-enabled/$domain_name.conf
+echo "======= Creating Symlink for config file ============"
+ln -s /etc/nginx/sites-available/$domain_name.conf etc/nginx/sites-enabled/
 
 # Clean Up
 sudo service nginx restart
