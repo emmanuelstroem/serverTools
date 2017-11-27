@@ -144,7 +144,7 @@ groups www-data
 echo "======= Installing debconf-utils ============"
 apt-get install -y debconf-utils
 
-apt-get -y install zsh htop
+# apt-get -y install zsh htop
 
 # Install MySQL
 echo "======= Setting MySQL default root password ============"
@@ -154,7 +154,7 @@ echo "mysql-server mysql-server/root_password password secret" | sudo debconf-se
 echo "mysql-server mysql-server/root_password_again password secret" | sudo debconf-set-selections
 
 # Update the information needed for APT by adding the 5.7 repository and updating `apt-get
-# 
+#
 # sudo apt-key adv --keyserver pgp.mit.edu --recv-keys 5072E1F5
 # cat <<- EOF > /etc/apt/sources.list.d/mysql.list
 # deb http://repo.mysql.com/apt/ubuntu/ trusty mysql-5.7
@@ -247,7 +247,8 @@ if [ -d /usr/share/nginx/html/phpmyadmin ]; then
 fi
 
 echo "======= Creating PHPmyadmin Symlink ============"
-sudo ln -s /usr/share/phpmyadmin /usr/share/nginx/html/dbadmin
+# sudo ln -s /usr/share/phpmyadmin /usr/share/nginx/html/dbadmin
+sudo ln -s /usr/share/phpmyadmin /var/www/$domain_name/dbadmin
 
 sudo apt -y install php-mcrypt php-mbstring
 
@@ -305,6 +306,10 @@ if [ -d /var/www/$domain_name ]; then
 	sudo chmod -R 775 /var/www/$domain_name
 	sudo chmod -R 775 /var/www/$domain_name/wp-content
 fi
+
+#Set permissions
+echo "======= Chown -R www-data:www-data /var/www/$domain_name/wp-content ============"
+chown -R www-data:www-data /var/www/$domain_name/wp-content/
 
 # Wordpress Salt
 echo "=======Generating Wordpress Salt ============"
