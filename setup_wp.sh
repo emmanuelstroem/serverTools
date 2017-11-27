@@ -155,36 +155,57 @@ chmod 0600 /root/.my.cnf
 
 sed -i '/^bind-address/s/bind-address.*=.*/bind-address = 0.0.0.0/' /etc/mysql/mysql.conf.d/mysqld.cnf
 
+echo "======= Creating MySQL Root User ============"
 mysql --user="root" --password="secret" -e "GRANT ALL ON *.* TO root@'0.0.0.0' IDENTIFIED BY 'secret' WITH GRANT OPTION;"
+
+echo "======= Restarting MySQL ============"
 service mysql restart
 
+echo "======= Creating MySQL $domain_name User ============"
 mysql --user="root" --password="secret" -e "CREATE USER '$domain_name'@'0.0.0.0' IDENTIFIED BY 'secret';"
 mysql --user="root" --password="secret" -e "GRANT ALL ON *.* TO '$domain_name'@'0.0.0.0' IDENTIFIED BY 'secret' WITH GRANT OPTION;"
 mysql --user="root" --password="secret" -e "GRANT ALL ON *.* TO '$domain_name'@'%' IDENTIFIED BY 'secret' WITH GRANT OPTION;"
+
+echo "======= Flushing Privileges MySQL ============"
 mysql --user="root" --password="secret" -e "FLUSH PRIVILEGES;"
+
+echo "======= Creating DB $domain_name ============"
 mysql --user="root" --password="secret" -e "CREATE DATABASE $domain_name character set UTF8mb4 collate utf8mb4_bin;"
+
+echo "======= Restarting MySQL ============"
 service mysql restart
+
+echo "======= Flushing Privileges MySQL ============"
+mysql --user="root" --password="secret" -e "FLUSH PRIVILEGES;"
 
 # Add Timezone Support To MySQL
 
 mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql --user=root --password=secret mysql
 
 # Configure Supervisor
-
+echo "======= Enabling and Starting Supervisor ============"
 systemctl enable supervisor.service
 service supervisor start
 
 # Install phpmyadmin
+echo "======= Installing PHPmyadmin ============"
 echo "phpmyadmin phpmyadmin/internal/skip-preseed boolean true" | debconf-set-selections
 echo "phpmyadmin phpmyadmin/reconfigure-webserver multiselect" | debconf-set-selections
 echo "phpmyadmin phpmyadmin/dbconfig-install boolean false" | debconf-set-selections
 
 sudo apt-get -y install phpmyadmin
 
+echo "======= Removing PHPmyadmin Symlink ============"
+if [ -d /usr/share/nginx/html/phpmyadmin ]; then
+	rm -rf /usr/share/nginx/html/phpmyadmin
+fi
+
+echo "======= Creating PHPmyadmin Symlink ============"
 sudo ln -s /usr/share/phpmyadmin /usr/share/nginx/html
 
 sudo apt -y install php-mcrypt php-mbstring
 
+echo "======= Restarting Nginx and PHP-fpm ============"
 sudo service nginx restart
 sudo service php7.1-fpm restart
 
@@ -268,7 +289,7 @@ echo "
 define('DB_NAME', '$domain_name');
 
 /** MySQL database username */
-define('DB_USER', $domain_name);
+define('DB_USER', '$domain_name');
 
 /** MySQL database password */
 define('DB_PASSWORD', 'secret');
@@ -338,7 +359,7 @@ echo "======= Change permissions of WP Folders ============"
 find /var/www/$domain_name/ -type f -exec chmod 644 {} \\;
 
 echo "======= Change permissions of wp-config ============"
-	chmod 0600 /var/www/$domain_name/wp-config.php
+	chmod 0644 /var/www/$domain_name/wp-config.php
 
 # remove config file
 echo "======= Removing NGINX Website Conf Files ============"
