@@ -247,8 +247,7 @@ if [ -d /usr/share/nginx/html/phpmyadmin ]; then
 fi
 
 echo "======= Creating PHPmyadmin Symlink ============"
-# sudo ln -s /usr/share/phpmyadmin /usr/share/nginx/html/dbadmin
-sudo ln -s /usr/share/phpmyadmin /var/www/$domain_name/dbadmin
+sudo ln -s /usr/share/phpmyadmin /usr/share/nginx/html
 
 sudo apt -y install php-mcrypt php-mbstring
 
