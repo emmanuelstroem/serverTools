@@ -172,35 +172,63 @@ sudo apt -y install php-mcrypt php-mbstring
 sudo service nginx restart
 sudo service php7.1-fpm restart
 
-#remove previous downloads
 
+#remove previous downloads
+echo "=======Removing Old Wordpress============ \n"
 if [ -f /var/www/latest.tar.gz ]; then
-	rm -f /var/www/latest.tar.gz
+	cd /var/www/
+	rm -f latest.tar.gz
+else if [ -f /var/www/wordpress ]; then
+	cd /var/www/
+	rm -rf wordpress
 fi
 
+echo "=======Downloading Wordpress============"
 # Download Wordpress
-cd /var/www && curl -O https://wordpress.org/latest.tar.gz
+if [ -d /var/www/ ]; then
+	cd /var/www/
+	curl -O https://wordpress.org/latest.tar.gz
+else
+	mkdir -p /var/www/ && cd /var/www/
+	curl -O https://wordpress.org/latest.tar.gz
+fi
 
 # Extract wordpress
-tar xzvf latest.tar.gz
+echo "=======Extracting Wordpress============"
 
+if [ -f /var/www/latest.tar.gz ]; then
+	cd /var/www/
+	tar xzvf latest.tar.gz
+fi
+
+echo "=======Remove Old Site Folder============"
 if [ -d /var/www/$domain_name ]; then
-        rm -rf /var/www/$domain_name
+	cd /var/www/
+  rm -rf $domain_name
 fi
 
 # Rename the directzory name
-mv wordpress $domain_name
+echo "=======Renaming Wordpress Folder to $domain_name ============"
+if [ -d /var/www/wordpress ]; then
+	cd /var/www/
+  mv wordpress $domain_name
+fi
+
 
 #Set permissions
-sudo chmod -R 775 /var/www/$domain_name
-sudo chmod -R 775 /var/www/$domain_name/wp-content
-
+echo "=======Changing Permissions on WP Folder============"
+if [ -d /var/www/$domain_name ]; then
+	sudo chmod -R 775 /var/www/$domain_name
+	sudo chmod -R 775 /var/www/$domain_name/wp-content
+fi
 
 # Wordpress Salt
+echo "=======Generating Wordpress Salt ============"
 wp_salt = curl https://api.wordpress.org/secret-key/1.1/salt/
 
 # create wp config file
 
+echo "=======Creating wp-config.php file ============"
 echo "
 
 <?php
