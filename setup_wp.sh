@@ -1,6 +1,8 @@
 #!/bin/sh
-
 export DEBIAN_FRONTEND="noninteractive"
+
+# update packages
+apt-get update
 
 # Force Locale
 echo "LC_ALL=en_US.UTF-8" >> /etc/default/locale
