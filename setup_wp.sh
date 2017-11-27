@@ -154,11 +154,11 @@ echo "mysql-server mysql-server/root_password password secret" | sudo debconf-se
 echo "mysql-server mysql-server/root_password_again password secret" | sudo debconf-set-selections
 
 # Update the information needed for APT by adding the 5.7 repository and updating `apt-get
-
-sudo apt-key adv --keyserver pgp.mit.edu --recv-keys 5072E1F5
-cat <<- EOF > /etc/apt/sources.list.d/mysql.list
-deb http://repo.mysql.com/apt/ubuntu/ trusty mysql-5.7
-EOF
+# 
+# sudo apt-key adv --keyserver pgp.mit.edu --recv-keys 5072E1F5
+# cat <<- EOF > /etc/apt/sources.list.d/mysql.list
+# deb http://repo.mysql.com/apt/ubuntu/ trusty mysql-5.7
+# EOF
 
 echo "======= Installing MySQL ============"
 apt-get install -y mysql-server-5.7
@@ -280,10 +280,10 @@ if [ -f /var/www/latest.tar.gz ]; then
 fi
 
 # Rename the directzory name
-echo "=======Renaming wp-admin Folder to $domain_name ============"
-if [ -d /var/www/wordpress/wp-admin ]; then
-	mv /var/www/wordpress/wp-admin/ manage
-fi
+# echo "=======Renaming wp-admin Folder to $domain_name ============"
+# if [ -d /var/www/wordpress/wp-admin ]; then
+# 	mv /var/www/wordpress/wp-admin/ manage
+# fi
 
 echo "=======Remove Old Site Folder============"
 if [ -d /var/www/$domain_name ]; then
