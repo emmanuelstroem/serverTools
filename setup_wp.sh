@@ -235,7 +235,7 @@ fi
 
 # Wordpress Salt
 echo "=======Generating Wordpress Salt ============"
-wp_salt = curl https://api.wordpress.org/secret-key/1.1/salt/
+wp_salt=curl https://api.wordpress.org/secret-key/1.1/salt/
 
 # create wp config file
 
@@ -301,7 +301,7 @@ $wp_salt
  * You can have multiple installations in one database if you give each
  * a unique prefix. Only numbers, letters, and underscores please!
  */
-'$'table_prefix  = 'wp_';
+$'table_prefix  = 'wp_';
 
 /**
  * For developers: WordPress debugging mode.
@@ -344,17 +344,17 @@ server {
     server_name $domain_name.com;
 
     location / {
-        try_files '$'uri '$'uri/ /index.php?'$'query_string;
+        try_files $`uri $`uri/ /index.php?$'query_string;
     }
 
     location /phpmyadmin {
             root /usr/share/nginx/html;
             location ~ ^/phpmyadmin/(.+\.php)$ {
-                    try_files '$'uri =404;
+                    try_files $`uri =404;
                     root /usr/share/nginx/html;
                     fastcgi_pass unix:/run/php/php7.1-fpm.sock;
                     fastcgi_index index.php;
-                    fastcgi_param SCRIPT_FILENAME '$'document_root$fastcgi_script_name;
+                    fastcgi_param SCRIPT_FILENAME $`document_root$`fastcgi_script_name;
                     include /etc/nginx/fastcgi_params;
             }
             location ~* ^/phpmyadmin/(.+\.(jpg|jpeg|gif|css|png|js|ico|html|xml|txt))$ {
