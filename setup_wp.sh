@@ -329,6 +329,14 @@ require_once(ABSPATH . 'wp-settings.php');
 
 " >> /var/www/$domain_name/wp-config.php
 
+# fix Wordpress File permissions
+echo "======= Change permissions of WP Files ============"
+find /var/www/$domain_name/ -type d -exec chmod 755 {} \\;
+
+# fix Wordpress Folder permissions
+echo "======= Change permissions of WP Folders ============"
+find /var/www/$domain_name/ -type f -exec chmod 644 {} \\;
+
 echo "======= Change permissions of wp-config ============"
 	chmod 0600 /var/www/$domain_name/wp-config.php
 
