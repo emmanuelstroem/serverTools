@@ -34,8 +34,10 @@ apt-add-repository ppa:nginx/development -y
 echo "======= Applying Updates for Software Sources ============"
 apt-get update
 
+echo "======= Installing System Dependencies ============"
 apt-get install -y build-essential dos2unix gcc git libmcrypt4 libpcre3-dev ntp unzip make python2.7-dev python-pip re2c supervisor unattended-upgrades whois vim libnotify-bin pv cifs-utils
 
+echo "======= Installing PHP Dependencies ============"
 apt-get install -y php7.1-cli php7.1-dev \
 php7.1-pgsql php7.1-sqlite3 php7.1-gd \
 php7.1-curl php7.1-memcached \
@@ -43,11 +45,13 @@ php7.1-imap php7.1-mysql php7.1-mbstring \
 php7.1-xml php7.1-zip php7.1-bcmath php7.1-soap \
 php7.1-intl php7.1-readline php-xdebug
 
+echo "======= Configuring PHP.ini ============"
 sudo sed -i "s/error_reporting = .*/error_reporting = E_ALL/" /etc/php/7.1/cli/php.ini
 sudo sed -i "s/display_errors = .*/display_errors = On/" /etc/php/7.1/cli/php.ini
 sudo sed -i "s/memory_limit = .*/memory_limit = 512M/" /etc/php/7.1/cli/php.ini
 sudo sed -i "s/;date.timezone.*/date.timezone = UTC/" /etc/php/7.1/cli/php.ini
 
+echo "======= Installing NGINX and PHP-fpm ============"
 apt-get install -y nginx php7.1-fpm
 
 if [ -f /etc/nginx/sites-enabled/default ]; then
@@ -57,9 +61,12 @@ fi
 if [ -f /etc/nginx/sites-available/default ]; then
 	rm /etc/nginx/sites-available/default
 fi
+
+echo "======= Restarting NGINX ============"
 service nginx restart
 
 # Setup Some PHP-FPM Options
+echo "======= Setting up PHP-fpm Options ============"
 
 echo "xdebug.remote_enable = 1" >> /etc/php/7.1/mods-available/xdebug.ini
 echo "xdebug.remote_connect_back = 1" >> /etc/php/7.1/mods-available/xdebug.ini
@@ -77,11 +84,11 @@ sed -i "s/;date.timezone.*/date.timezone = UTC/" /etc/php/7.1/fpm/php.ini
 
 
 # Disable XDebug On The CLI
-
+echo "======= Disabling XDebug in CLI ============"
 sudo phpdismod -s cli xdebug
 
 # Copy fastcgi_params to Nginx because they broke it on the PPA
-
+echo "======= Creating NGINX fastcgi_params ============"
 cat > /etc/nginx/fastcgi_params << EOF
 fastcgi_param	QUERY_STRING		\$query_string;
 fastcgi_param	REQUEST_METHOD		\$request_method;
@@ -106,7 +113,7 @@ EOF
 
 
 # Set The Nginx & PHP-FPM User
-
+echo "======= Setting NGINX and PHP-fpm User ============"
 sed -i "s/user www-data;/user www-data;/" /etc/nginx/nginx.conf
 sed -i "s/# server_names_hash_bucket_size.*/server_names_hash_bucket_size 64;/" /etc/nginx/nginx.conf
 
@@ -117,25 +124,31 @@ sed -i "s/listen\.owner.*/listen.owner = www-data/" /etc/php/7.1/fpm/pool.d/www.
 sed -i "s/listen\.group.*/listen.group = www-data/" /etc/php/7.1/fpm/pool.d/www.conf
 sed -i "s/;listen\.mode.*/listen.mode = 0666/" /etc/php/7.1/fpm/pool.d/www.conf
 
+echo "======= Restarting NGINX and PHP-fpm ============"
 service nginx restart
 service php7.1-fpm restart
 
 # Add grimlock User To WWW-Data
-
+echo "======= Adding www-data user  ============"
 usermod -a -G www-data www-data
 id www-data
 groups www-data
 
 # Install debconf-utils
-
+echo "======= Installing debconf-utils ============"
 apt-get install -y debconf-utils
 
 # Install MySQL
-
+echo "======= Setting MySQL default root password ============"
 echo 'mysql-server mysql-server/root_password password password secret' | debconf-set-selections
 echo 'mysql-server mysql-server/root_password_again password password secret' | debconf-set-selections
 
+echo "======= Installing MySQL ============"
 apt-get install -y mysql-server
+
+# Secure MySQL Install
+echo "======= Running mysql_secure_installation ============"
+sudo mysql_secure_installation
 
 # Configure MySQL Password Lifetime
 
@@ -144,6 +157,12 @@ echo "default_password_lifetime = 0" >> /etc/mysql/mysql.conf.d/mysqld.cnf
 # Configure MySQL Remote Access
 
 # config remote Access
+echo "======= Remoign any previous /root/.my.cnf ============"
+if [ -f /root/.my.cnf ]; then
+	sudo -f /root/.my.cnf
+fi
+
+echo "======= Creating /root/.my.cnf ============"
 echo '
 [client]
 user=root
@@ -151,8 +170,10 @@ password=secret
 
 ' >> /root/.my.cnf
 
+echo "======= Setting Permissions of /root/.my.cnf to 0600 ============"
 chmod 0600 /root/.my.cnf
 
+echo "======= Setting MySQL Bind Address to 0.0.0.0 ============"
 sed -i '/^bind-address/s/bind-address.*=.*/bind-address = 0.0.0.0/' /etc/mysql/mysql.conf.d/mysqld.cnf
 
 echo "======= Creating MySQL Root User ============"
@@ -177,6 +198,9 @@ service mysql restart
 
 echo "======= Flushing Privileges MySQL ============"
 mysql --user="root" --password="secret" -e "FLUSH PRIVILEGES;"
+
+echo "======= Restarting MySQL ============"
+service mysql restart
 
 # Add Timezone Support To MySQL
 
@@ -415,6 +439,9 @@ echo "======= Creating Symlink for config file ============"
 ln -s /etc/nginx/sites-available/$domain_name.conf /etc/nginx/sites-enabled/
 
 # Clean Up
+echo "======= Restarting NGINX ============"
 sudo service nginx restart
+
+echo "======= Cleaning Up ============"
 apt-get -y autoremove
 apt-get -y clean
