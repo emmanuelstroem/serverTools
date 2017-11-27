@@ -140,15 +140,24 @@ apt-get install -y debconf-utils
 
 # Install MySQL
 echo "======= Setting MySQL default root password ============"
-echo 'mysql-server mysql-server/root_password password password secret' | debconf-set-selections
-echo 'mysql-server mysql-server/root_password_again password password secret' | debconf-set-selections
+# echo 'mysql-server mysql-server/root_password password password secret' | debconf-set-selections
+# echo 'mysql-server mysql-server/root_password_again password password secret' | debconf-set-selections
+sudo debconf-set-selections <<< "mysql-server mysql-server/root_password password secret"
+sudo debconf-set-selections <<< "mysql-server mysql-server/root_password_again password secret"
+
+# Update the information needed for APT by adding the 5.7 repository and updating `apt-get
+
+sudo apt-key adv --keyserver pgp.mit.edu --recv-keys 5072E1F5
+cat <<- EOF > /etc/apt/sources.list.d/mysql.list
+deb http://repo.mysql.com/apt/ubuntu/ trusty mysql-5.7
+EOF
 
 echo "======= Installing MySQL ============"
-apt-get install -y mysql-server
+apt-get install -y mysql-server-5.7
 
 # Secure MySQL Install
-echo "======= Running mysql_secure_installation ============"
-sudo mysql_secure_installation
+# echo "======= Running mysql_secure_installation ============"
+# sudo mysql_secure_installation
 
 # Configure MySQL Password Lifetime
 
