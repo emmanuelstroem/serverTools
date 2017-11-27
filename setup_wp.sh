@@ -191,15 +191,11 @@ sudo service php7.1-fpm restart
 
 #remove previous downloads
 echo "=======Removing Old Wordpress============ \n"
-if [ -f /var/www/latest.tar.gz ]; then
-	cd /var/www/
-	rm -f latest.tar.gz
-fi
-
-if [ -f /var/www/wordpress ]; then
-	cd /var/www/
-	rm -rf wordpress
-fi
+echo "....nothing here..."
+# if [ -f /var/www/wordpress ]; then
+# 	cd /var/www/
+# 	rm -rf wordpress
+# fi
 
 echo "=======Downloading Wordpress============"
 # Download Wordpress
