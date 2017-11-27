@@ -1,6 +1,10 @@
 #!/bin/sh
 export DEBIAN_FRONTEND="noninteractive"
 
+# command line arguments
+domain_name = $0
+
+
 # update packages
 apt-get update
 
@@ -138,11 +142,11 @@ sed -i '/^bind-address/s/bind-address.*=.*/bind-address = 0.0.0.0/' /etc/mysql/m
 mysql --user="root" --password="secret" -e "GRANT ALL ON *.* TO root@'0.0.0.0' IDENTIFIED BY 'secret' WITH GRANT OPTION;"
 service mysql restart
 
-mysql --user="root" --password="secret" -e "CREATE USER 'joyeriasenmonterrey'@'0.0.0.0' IDENTIFIED BY 'secret';"
-mysql --user="root" --password="secret" -e "GRANT ALL ON *.* TO 'joyeriasenmonterrey'@'0.0.0.0' IDENTIFIED BY 'secret' WITH GRANT OPTION;"
-mysql --user="root" --password="secret" -e "GRANT ALL ON *.* TO 'joyeriasenmonterrey'@'%' IDENTIFIED BY 'secret' WITH GRANT OPTION;"
+mysql --user="root" --password="secret" -e "CREATE USER '$domain_name'@'0.0.0.0' IDENTIFIED BY 'secret';"
+mysql --user="root" --password="secret" -e "GRANT ALL ON *.* TO '$domain_name'@'0.0.0.0' IDENTIFIED BY 'secret' WITH GRANT OPTION;"
+mysql --user="root" --password="secret" -e "GRANT ALL ON *.* TO '$domain_name'@'%' IDENTIFIED BY 'secret' WITH GRANT OPTION;"
 mysql --user="root" --password="secret" -e "FLUSH PRIVILEGES;"
-mysql --user="root" --password="secret" -e "CREATE DATABASE joyeriasenmonterrey character set UTF8mb4 collate utf8mb4_bin;"
+mysql --user="root" --password="secret" -e "CREATE DATABASE $domain_name character set UTF8mb4 collate utf8mb4_bin;"
 service mysql restart
 
 # Add Timezone Support To MySQL
@@ -180,45 +184,138 @@ cd /var/www && curl -O https://wordpress.org/latest.tar.gz
 # Extract wordpress
 tar xzvf latest.tar.gz
 
-if [ -d /var/www/joyeriasenmonterrey ]; then
-        rm -rf /var/www/joyeriasenmonterrey
+if [ -d /var/www/$domain_name ]; then
+        rm -rf /var/www/$domain_name
 fi
 
 # Rename the directzory name
-mv wordpress joyeriasenmonterrey
+mv wordpress $domain_name
 
 #Set permissions
-sudo chmod -R 775 /var/www/joyeriasenmonterrey
-sudo chmod -R 775 /var/www/joyeriasenmonterrey/wp-content
+sudo chmod -R 775 /var/www/$domain_name
+sudo chmod -R 775 /var/www/$domain_name/wp-content
 
+
+# Wordpress Salt
+wp_salt = curl https://api.wordpress.org/secret-key/1.1/salt/
+
+# create wp config file
+
+echo "
+
+<?php
+/**
+ * The base configuration for WordPress
+ *
+ * The wp-config.php creation script uses this file during the
+ * installation. You don't have to use the web site, you can
+ * copy this file to wp-config.php and fill in the values.
+ *
+ * This file contains the following configurations:
+ *
+ * * MySQL settings
+ * * Secret keys
+ * * Database table prefix
+ * * ABSPATH
+ *
+ * @link https://codex.wordpress.org/Editing_wp-config.php
+ *
+ * @package WordPress
+ */
+
+// ** MySQL settings - You can get this info from your web host ** //
+/** The name of the database for WordPress */
+define('DB_NAME', $domain_name);
+
+/** MySQL database username */
+define('DB_USER', $domain_name);
+
+/** MySQL database password */
+define('DB_PASSWORD', 'secret');
+
+/** MySQL hostname */
+define('DB_HOST', 'localhost');
+
+/** Database Charset to use in creating database tables. */
+define('DB_CHARSET', 'utf8');
+
+/** The Database Collate type. Don't change this if in doubt. */
+define('DB_COLLATE', '');
+
+/**#@+
+ * Authentication Unique Keys and Salts.
+ *
+ * Change these to different unique phrases!
+ * You can generate these using the {@link https://api.wordpress.org/secret-key/1.1/salt/ WordPress.org secret-key service}
+ * You can change these at any point in time to invalidate all existing cookies. This will force all users to have to log in again.
+ *
+ * @since 2.6.0
+ */
+
+$wp_salt
+
+/**#@-*/
+
+/**
+ * WordPress Database Table prefix.
+ *
+ * You can have multiple installations in one database if you give each
+ * a unique prefix. Only numbers, letters, and underscores please!
+ */
+'$'table_prefix  = 'wp_';
+
+/**
+ * For developers: WordPress debugging mode.
+ *
+ * Change this to true to enable the display of notices during development.
+ * It is strongly recommended that plugin and theme developers use WP_DEBUG
+ * in their development environments.
+ *
+ * For information on other constants that can be used for debugging,
+ * visit the Codex.
+ *
+ * @link https://codex.wordpress.org/Debugging_in_WordPress
+ */
+define('WP_DEBUG', false);
+
+/* That's all, stop editing! Happy blogging. */
+
+/** Absolute path to the WordPress directory. */
+if ( !defined('ABSPATH') )
+	define('ABSPATH', dirname(__FILE__) . '/');
+
+/** Sets up WordPress vars and included files. */
+require_once(ABSPATH . 'wp-settings.php');
+
+" >> /var/www/$domain_name/wp-config.php
 
 # remove config file
-rm -f etc/nginx/sites-enabled/joyeriasenmonterrey.conf
-rm -f etc/nginx/sites-available/joyeriasenmonterrey.conf
+rm -f etc/nginx/sites-enabled/$domain_name.conf
+rm -f etc/nginx/sites-available/$domain_name.conf
 
 #Config file
-echo '
+echo "
 server {
     listen 80;
     listen [::]:80;
 
-    root /var/www/joyeriasenmonterrey;
+    root /var/www/$domain_name;
     index index.php index.html index.htm;
 
-    server_name joyeriasenmonterrey.com;
+    server_name $domain_name.com;
 
     location / {
-        try_files $uri $uri/ /index.php?$query_string;
+        try_files '$'uri '$'uri/ /index.php?'$'query_string;
     }
 
     location /phpmyadmin {
             root /usr/share/nginx/html;
             location ~ ^/phpmyadmin/(.+\.php)$ {
-                    try_files $uri =404;
+                    try_files '$'uri =404;
                     root /usr/share/nginx/html;
                     fastcgi_pass unix:/run/php/php7.1-fpm.sock;
                     fastcgi_index index.php;
-                    fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+                    fastcgi_param SCRIPT_FILENAME '$'document_root$fastcgi_script_name;
                     include /etc/nginx/fastcgi_params;
             }
             location ~* ^/phpmyadmin/(.+\.(jpg|jpeg|gif|css|png|js|ico|html|xml|txt))$ {
@@ -227,16 +324,16 @@ server {
     }
 
     location ~ \.php$ {
-        try_files $uri /index.php =404;
+        try_files '$'uri /index.php =404;
         fastcgi_split_path_info ^(.+\.php)(/.+)$;
         fastcgi_pass unix:/run/php/php7.1-fpm.sock;
         fastcgi_index index.php;
-        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param SCRIPT_FILENAME '$'document_root'$'fastcgi_script_name;
         include fastcgi_params;
     }
-}' >>/etc/nginx/sites-available/joyeriasenmonterrey.conf
+} " >>/etc/nginx/sites-available/$domain_name.conf
 
-ln -s /etc/nginx/sites-available/joyeriasenmonterrey.conf etc/nginx/sites-enabled/joyeriasenmonterrey.conf
+ln -s /etc/nginx/sites-available/$domain_name.conf etc/nginx/sites-enabled/$domain_name.conf
 
 # Clean Up
 sudo service nginx restart
