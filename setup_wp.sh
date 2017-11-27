@@ -10,6 +10,9 @@ else
 		domain_name="emmanuelopio"
 fi
 
+echo "======= Got Domain Name============"
+echo $domain_name
+
 
 # update packages
 apt-get update
