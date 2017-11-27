@@ -235,7 +235,8 @@ fi
 
 # Wordpress Salt
 echo "=======Generating Wordpress Salt ============"
-wp_salt='curl https://api.wordpress.org/secret-key/1.1/salt/'
+wp_salt="$(curl https://api.wordpress.org/secret-key/1.1/salt/)"
+# wp_salt=`curl https://api.wordpress.org/secret-key/1.1/salt/`
 echo "SALT: $wp_salt"
 
 # create wp config file
