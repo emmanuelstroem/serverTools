@@ -2,7 +2,13 @@
 export DEBIAN_FRONTEND="noninteractive"
 
 # command line arguments
-domain_name = $0
+if [ $# -gt 0 ]; then
+    echo "Your command line contains $# arguments"
+    domain_name = "$1"
+else
+    echo "Your command line contains no arguments"
+		domain_name = "emmanuelopio"
+fi
 
 
 # update packages
