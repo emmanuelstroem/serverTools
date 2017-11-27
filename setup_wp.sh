@@ -5,13 +5,19 @@ export DEBIAN_FRONTEND="noninteractive"
 if [ $# -gt 0 ]; then
     echo "Your command line contains $# arguments"
     domain_name="$1"
+    domain_extension="$2"
+    db_user="$3"
+    db_pass="$4"
 else
     echo "Your command line contains no arguments"
 		domain_name="emmanuelopio"
+    domain_extension=".com"
+    db_user="$domain_name"
+    db_pass="secret"
 fi
 
 echo "======= Got Domain Name ============"
-echo $domain_name
+echo $domain_name.$domain_extension
 
 
 # update packages
@@ -159,15 +165,11 @@ apt-get install -y mysql-server-5.7
 
 # Secure MySQL Install
 echo "======= Running mysql_secure_installation ============"
-
-# mysql_secure_installation
-# echo -e "secret\nn\nY\nY\nY\nY\n" | mysql_secure_installation
+echo "======= Updating MySQL Root User ============"
+mysql -u root -e 'USE mysql; UPDATE `user` SET `Host`="%" WHERE `User`="root" AND `Host`="localhost"; DELETE FROM `user` WHERE `Host` != "%" AND `User`="root"; FLUSH PRIVILEGES;'
 
 echo "======= Setting MySQL Port in /etc/mysql/mysql.conf.d/mysqld.cnf ============"
 sed -i 's/127\.0\.0\.1/0\.0\.0\.0/g' /etc/mysql/mysql.conf.d/mysqld.cnf
-
-echo "======= Updating MySQL Root User ============"
-mysql -u root -e 'USE mysql; UPDATE `user` SET `Host`="%" WHERE `User`="root" AND `Host`="localhost"; DELETE FROM `user` WHERE `Host` != "%" AND `User`="root"; FLUSH PRIVILEGES;'
 
 
 # Configure MySQL Password Lifetime
@@ -203,9 +205,9 @@ echo "======= Restarting MySQL ============"
 service mysql restart
 
 echo "======= Creating MySQL $domain_name User ============"
-mysql --user="root" --password="secret" -e "CREATE USER '$domain_name'@'0.0.0.0' IDENTIFIED BY 'secret';"
-mysql --user="root" --password="secret" -e "GRANT ALL ON *.* TO '$domain_name'@'0.0.0.0' IDENTIFIED BY 'secret' WITH GRANT OPTION;"
-mysql --user="root" --password="secret" -e "GRANT ALL ON *.* TO '$domain_name'@'%' IDENTIFIED BY 'secret' WITH GRANT OPTION;"
+mysql --user="root" --password="secret" -e "CREATE USER '$db_user'@'0.0.0.0' IDENTIFIED BY '$db_pass';"
+mysql --user="root" --password="secret" -e "GRANT ALL ON *.* TO '$db_user'@'0.0.0.0' IDENTIFIED BY '$db_pass' WITH GRANT OPTION;"
+mysql --user="root" --password="secret" -e "GRANT ALL ON *.* TO '$db_user'@'%' IDENTIFIED BY '$db_pass' WITH GRANT OPTION;"
 
 echo "======= Flushing Privileges MySQL ============"
 mysql --user="root" --password="secret" -e "FLUSH PRIVILEGES;"
@@ -245,7 +247,7 @@ if [ -d /usr/share/nginx/html/phpmyadmin ]; then
 fi
 
 echo "======= Creating PHPmyadmin Symlink ============"
-sudo ln -s /usr/share/phpmyadmin /usr/share/nginx/html
+sudo ln -s /usr/share/phpmyadmin /usr/share/nginx/html/dbadmin
 
 sudo apt -y install php-mcrypt php-mbstring
 
@@ -290,6 +292,13 @@ if [ -d /var/www/wordpress ]; then
   mv wordpress $domain_name
 fi
 
+# Rename the directzory name
+echo "=======Renaming wp-admin Folder to $domain_name ============"
+if [ -d /var/www/$domain_name/wp-admin ]; then
+	cd /var/www/$domain_name
+  mv wp-admin manage
+
+
 
 #Set permissions
 echo "=======Changing Permissions on WP Folder============"
@@ -333,10 +342,10 @@ echo "
 define('DB_NAME', '$domain_name');
 
 /** MySQL database username */
-define('DB_USER', '$domain_name');
+define('DB_USER', '$db_user');
 
 /** MySQL database password */
-define('DB_PASSWORD', 'secret');
+define('DB_PASSWORD', '$db_pass');
 
 /** MySQL hostname */
 define('DB_HOST', 'localhost');
@@ -424,7 +433,7 @@ echo "
     root /var/www/$domain_name;
     index index.php index.html index.htm;
 
-    server_name $domain_name.com;
+    server_name $domain_name.$domain_extension;
 
     location / {
         try_files \$uri \$uri/ /index.php?\$query_string;
