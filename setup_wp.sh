@@ -179,6 +179,11 @@ mv wordpress joyeriasenmonterrey
 sudo chmod -R 775 /var/www/joyeriasenmonterrey
 sudo chmod -R 775 /var/www/joyeriasenmonterrey/wp-content
 
+
+# remove config file
+rm -f etc/nginx/sites-enabled/joyeriasenmonterrey.conf
+rm -f etc/nginx/sites-available/joyeriasenmonterrey.conf
+
 #Config file
 echo '
 server {
@@ -217,7 +222,9 @@ server {
         fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
         include fastcgi_params;
     }
-}' >>/etc/nginx/sites-enabled/joyeriasenmonterrey.conf
+}' >>/etc/nginx/sites-available/joyeriasenmonterrey.conf
+
+ln -s /etc/nginx/sites-available/joyeriasenmonterrey.conf etc/nginx/sites-enabled/joyeriasenmonterrey.conf
 
 # Clean Up
 sudo service nginx restart
