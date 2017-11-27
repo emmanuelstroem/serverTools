@@ -10,21 +10,28 @@ else
 		domain_name="emmanuelopio"
 fi
 
-echo "======= Got Domain Name============"
+echo "======= Got Domain Name ============"
 echo $domain_name
 
 
 # update packages
+echo "======= Updating Ubuntu ============"
 apt-get update
 
 # Force Locale
+echo "======= Setting Locale ============"
 echo "LC_ALL=en_US.UTF-8" >> /etc/default/locale
 locale-gen en_US.UTF-8
 
+echo "======= Installing software-properties-common and curl ============"
 apt-get install -y software-properties-common curl
+
+echo "======= Adding Software Sources for PHP and Nginx ============"
 apt-add-repository ppa:ondrej/php -y
 apt-add-repository ppa:nginx/development -y
 
+# Update Software Sources
+echo "======= Applying Updates for Software Sources ============"
 apt-get update
 
 apt-get install -y build-essential dos2unix gcc git libmcrypt4 libpcre3-dev ntp unzip make python2.7-dev python-pip re2c supervisor unattended-upgrades whois vim libnotify-bin pv cifs-utils
@@ -187,7 +194,9 @@ echo "=======Removing Old Wordpress============ \n"
 if [ -f /var/www/latest.tar.gz ]; then
 	cd /var/www/
 	rm -f latest.tar.gz
-else if [ -f /var/www/wordpress ]; then
+fi
+
+if [ -f /var/www/wordpress ]; then
 	cd /var/www/
 	rm -rf wordpress
 fi
@@ -196,9 +205,6 @@ echo "=======Downloading Wordpress============"
 # Download Wordpress
 if [ -d /var/www/ ]; then
 	cd /var/www/
-	curl -O https://wordpress.org/latest.tar.gz
-else
-	mkdir -p /var/www/ && cd /var/www/
 	curl -O https://wordpress.org/latest.tar.gz
 fi
 
