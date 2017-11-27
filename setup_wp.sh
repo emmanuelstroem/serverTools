@@ -160,15 +160,12 @@ apt-get install -y mysql-server-5.7
 # Secure MySQL Install
 echo "======= Running mysql_secure_installation ============"
 # Run the MySQL Secure Installation wizard
-mysql_secure_installation <<EOF
-n
-secret
-secret
-y
-y
-y
-y
-y
+mysql -u root <<EOF
+UPDATE mysql.user SET Password=PASSWORD('secret') WHERE User='root';
+DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
+DELETE FROM mysql.user WHERE User='';
+DELETE FROM mysql.db WHERE Db='test' OR Db='test_%';
+FLUSH PRIVILEGES;
 EOF
 
 # mysql_secure_installation
