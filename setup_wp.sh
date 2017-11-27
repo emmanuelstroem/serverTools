@@ -8,7 +8,7 @@ apt-get update
 echo "LC_ALL=en_US.UTF-8" >> /etc/default/locale
 locale-gen en_US.UTF-8
 
-apt-get install -y software-properties-common curl
+apt-get install -y software-properties-common
 apt-add-repository ppa:ondrej/php -y
 apt-add-repository ppa:nginx/development -y
 
