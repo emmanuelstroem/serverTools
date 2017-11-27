@@ -171,8 +171,10 @@ EOF
 # mysql_secure_installation
 # echo -e "secret\nn\nY\nY\nY\nY\n" | mysql_secure_installation
 
+echo "======= Setting MySQL Port in /etc/mysql/mysql.conf.d/mysqld.cnf ============"
 sed -i 's/127\.0\.0\.1/0\.0\.0\.0/g' /etc/mysql/mysql.conf.d/mysqld.cnf
-mysql -uroot -p -e 'USE mysql; UPDATE `user` SET `Host`="%" WHERE `User`="root" AND `Host`="localhost"; DELETE FROM `user` WHERE `Host` != "%" AND `User`="root"; FLUSH PRIVILEGES;'
+
+# mysql -u root -e 'USE mysql; UPDATE `user` SET `Host`="%" WHERE `User`="root" AND `Host`="localhost"; DELETE FROM `user` WHERE `Host` != "%" AND `User`="root"; FLUSH PRIVILEGES;'
 
 # sudo mysql_secure_installation
 
