@@ -303,6 +303,10 @@ define('DB_CHARSET', 'utf8');
 /** The Database Collate type. Don't change this if in doubt. */
 define('DB_COLLATE', '');
 
+/** Permissions */
+/** define( ‘FS_CHMOD_DIR’, ( 0755 & ~ umask() ) ); */
+/** define( ‘FS_CHMOD_FILE’, ( 0644 & ~ umask() ) ); */
+
 /**#@+
  * Authentication Unique Keys and Salts.
  *
@@ -352,11 +356,11 @@ require_once(ABSPATH . 'wp-settings.php');
 
 # fix Wordpress File permissions
 echo "======= Change permissions of WP Files ============"
-find /var/www/$domain_name/ -type d -exec chmod 755 {} \\;
+sudo find /var/www/$domain_name/ -type f -exec chmod 644 {} +
 
 # fix Wordpress Folder permissions
 echo "======= Change permissions of WP Folders ============"
-find /var/www/$domain_name/ -type f -exec chmod 644 {} \\;
+sudo find /var/www/$domain_name/ -type d -exec chmod 755 {} +
 
 echo "======= Change permissions of wp-config ============"
 	chmod 0644 /var/www/$domain_name/wp-config.php
