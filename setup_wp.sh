@@ -279,6 +279,12 @@ if [ -f /var/www/latest.tar.gz ]; then
 	tar xzvf latest.tar.gz
 fi
 
+# Rename the directzory name
+echo "=======Renaming wp-admin Folder to $domain_name ============"
+if [ -d /var/www/wordpress/wp-admin ]; then
+	mv /var/www/wordpress/wp-admin/ manage
+fi
+
 echo "=======Remove Old Site Folder============"
 if [ -d /var/www/$domain_name ]; then
 	cd /var/www/
@@ -291,13 +297,6 @@ if [ -d /var/www/wordpress ]; then
 	cd /var/www/
   mv wordpress $domain_name
 fi
-
-# Rename the directzory name
-echo "=======Renaming wp-admin Folder to $domain_name ============"
-if [ -d /var/www/$domain_name/wp-admin ]; then
-	cd /var/www/$domain_name
-  mv wp-admin manage
-
 
 
 #Set permissions
