@@ -159,14 +159,6 @@ apt-get install -y mysql-server-5.7
 
 # Secure MySQL Install
 echo "======= Running mysql_secure_installation ============"
-# Run the MySQL Secure Installation wizard
-# mysql -u root <<EOF
-# UPDATE mysql.user SET Password=PASSWORD('secret') WHERE User='root';
-# DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
-# DELETE FROM mysql.user WHERE User='';
-# DELETE FROM mysql.db WHERE Db='test' OR Db='test_%';
-# FLUSH PRIVILEGES;
-# EOF
 
 # mysql_secure_installation
 # echo -e "secret\nn\nY\nY\nY\nY\n" | mysql_secure_installation
@@ -177,7 +169,6 @@ sed -i 's/127\.0\.0\.1/0\.0\.0\.0/g' /etc/mysql/mysql.conf.d/mysqld.cnf
 echo "======= Updating MySQL Root User ============"
 mysql -u root -e 'USE mysql; UPDATE `user` SET `Host`="%" WHERE `User`="root" AND `Host`="localhost"; DELETE FROM `user` WHERE `Host` != "%" AND `User`="root"; FLUSH PRIVILEGES;'
 
-# sudo mysql_secure_installation
 
 # Configure MySQL Password Lifetime
 
@@ -186,9 +177,9 @@ echo "default_password_lifetime = 0" >> /etc/mysql/mysql.conf.d/mysqld.cnf
 # Configure MySQL Remote Access
 
 # config remote Access
-echo "======= Remoign any previous /root/.my.cnf ============"
+echo "======= Removing any previous /root/.my.cnf ============"
 if [ -f /root/.my.cnf ]; then
-	sudo -f /root/.my.cnf
+	sudo rm -f /root/.my.cnf
 fi
 
 echo "======= Creating /root/.my.cnf ============"
