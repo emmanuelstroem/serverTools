@@ -328,6 +328,12 @@ require_once(ABSPATH . 'wp-settings.php');
 
 " >> /var/www/$domain_name/wp-config.php
 
+echo "======= Change permissions of wp-config ============"
+if [-f /var/www/$domain_name/wp-config.php] then;
+	cd /var/www/$domain_name/
+	chmod 0600 wp-config.php
+	
+fi
 # remove config file
 rm -f etc/nginx/sites-enabled/$domain_name.conf
 rm -f etc/nginx/sites-available/$domain_name.conf
