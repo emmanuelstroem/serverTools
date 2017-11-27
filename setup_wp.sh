@@ -379,7 +379,7 @@ echo "
 } " >>/etc/nginx/sites-available/$domain_name.conf
 
 echo "======= Creating Symlink for config file ============"
-ln -s /etc/nginx/sites-available/$domain_name.conf etc/nginx/sites-enabled/
+ln -s /etc/nginx/sites-available/$domain_name.conf /etc/nginx/sites-enabled/
 
 # Clean Up
 sudo service nginx restart
