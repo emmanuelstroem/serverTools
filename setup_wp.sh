@@ -334,8 +334,8 @@ echo "======= Change permissions of wp-config ============"
 
 # remove config file
 echo "======= Removing NGINX Website Conf Files ============"
-rm -f etc/nginx/sites-enabled/$domain_name.conf
-rm -f etc/nginx/sites-available/$domain_name.conf
+rm -f /etc/nginx/sites-enabled/$domain_name.conf
+rm -f /etc/nginx/sites-available/$domain_name.conf
 
 #Config file
 echo "======= Creating NGINX $domain_name.conf ============"
