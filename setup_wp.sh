@@ -163,22 +163,7 @@ echo "mysql-server mysql-server/root_password_again password secret" | sudo debc
 echo "======= Installing MySQL ============"
 apt-get install -y mysql-server-5.7
 
-# Secure MySQL Install
-echo "======= Running mysql_secure_installation ============"
-echo "======= Updating MySQL Root User ============"
-mysql -u root -e 'USE mysql; UPDATE `user` SET `Host`="%" WHERE `User`="root" AND `Host`="localhost"; DELETE FROM `user` WHERE `Host` != "%" AND `User`="root"; FLUSH PRIVILEGES;'
-
-echo "======= Setting MySQL Port in /etc/mysql/mysql.conf.d/mysqld.cnf ============"
-sed -i 's/127\.0\.0\.1/0\.0\.0\.0/g' /etc/mysql/mysql.conf.d/mysqld.cnf
-
-
-# Configure MySQL Password Lifetime
-
-echo "default_password_lifetime = 0" >> /etc/mysql/mysql.conf.d/mysqld.cnf
-
 # Configure MySQL Remote Access
-
-# config remote Access
 echo "======= Removing any previous /root/.my.cnf ============"
 if [ -f /root/.my.cnf ]; then
 	sudo rm -f /root/.my.cnf
@@ -194,6 +179,20 @@ password=secret
 
 echo "======= Setting Permissions of /root/.my.cnf to 0600 ============"
 chmod 0600 /root/.my.cnf
+
+# Secure MySQL Install
+echo "======= Running mysql_secure_installation ============"
+echo "======= Updating MySQL Root User ============"
+mysql -u root -e 'USE mysql; UPDATE `user` SET `Host`="%" WHERE `User`="root" AND `Host`="localhost"; DELETE FROM `user` WHERE `Host` != "%" AND `User`="root"; FLUSH PRIVILEGES;'
+
+echo "======= Setting MySQL Port in /etc/mysql/mysql.conf.d/mysqld.cnf ============"
+sed -i 's/127\.0\.0\.1/0\.0\.0\.0/g' /etc/mysql/mysql.conf.d/mysqld.cnf
+
+
+# Configure MySQL Password Lifetime
+
+echo "default_password_lifetime = 0" >> /etc/mysql/mysql.conf.d/mysqld.cnf
+
 
 echo "======= Setting MySQL Bind Address to 0.0.0.0 ============"
 sed -i '/^bind-address/s/bind-address.*=.*/bind-address = 0.0.0.0/' /etc/mysql/mysql.conf.d/mysqld.cnf
