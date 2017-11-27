@@ -160,13 +160,13 @@ apt-get install -y mysql-server-5.7
 # Secure MySQL Install
 echo "======= Running mysql_secure_installation ============"
 # Run the MySQL Secure Installation wizard
-mysql -u root <<EOF
-UPDATE mysql.user SET Password=PASSWORD('secret') WHERE User='root';
-DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
-DELETE FROM mysql.user WHERE User='';
-DELETE FROM mysql.db WHERE Db='test' OR Db='test_%';
-FLUSH PRIVILEGES;
-EOF
+# mysql -u root <<EOF
+# UPDATE mysql.user SET Password=PASSWORD('secret') WHERE User='root';
+# DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
+# DELETE FROM mysql.user WHERE User='';
+# DELETE FROM mysql.db WHERE Db='test' OR Db='test_%';
+# FLUSH PRIVILEGES;
+# EOF
 
 # mysql_secure_installation
 # echo -e "secret\nn\nY\nY\nY\nY\n" | mysql_secure_installation
@@ -174,7 +174,8 @@ EOF
 echo "======= Setting MySQL Port in /etc/mysql/mysql.conf.d/mysqld.cnf ============"
 sed -i 's/127\.0\.0\.1/0\.0\.0\.0/g' /etc/mysql/mysql.conf.d/mysqld.cnf
 
-# mysql -u root -e 'USE mysql; UPDATE `user` SET `Host`="%" WHERE `User`="root" AND `Host`="localhost"; DELETE FROM `user` WHERE `Host` != "%" AND `User`="root"; FLUSH PRIVILEGES;'
+echo "======= Updating MySQL Root User ============"
+mysql -u root -e 'USE mysql; UPDATE `user` SET `Host`="%" WHERE `User`="root" AND `Host`="localhost"; DELETE FROM `user` WHERE `Host` != "%" AND `User`="root"; FLUSH PRIVILEGES;'
 
 # sudo mysql_secure_installation
 
