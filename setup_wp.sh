@@ -236,12 +236,12 @@ fi
 # Wordpress Salt
 echo "=======Generating Wordpress Salt ============"
 wp_salt=curl https://api.wordpress.org/secret-key/1.1/salt/
+echo "SALT: $wp_salt"
 
 # create wp config file
 
 echo "=======Creating wp-config.php file ============"
 echo "
-
 <?php
 /**
  * The base configuration for WordPress
@@ -264,7 +264,7 @@ echo "
 
 // ** MySQL settings - You can get this info from your web host ** //
 /** The name of the database for WordPress */
-define('DB_NAME', $domain_name);
+define('DB_NAME', '$domain_name');
 
 /** MySQL database username */
 define('DB_USER', $domain_name);
@@ -301,7 +301,7 @@ $wp_salt
  * You can have multiple installations in one database if you give each
  * a unique prefix. Only numbers, letters, and underscores please!
  */
-$'table_prefix  = 'wp_';
+\$table_prefix  = 'wp_';
 
 /**
  * For developers: WordPress debugging mode.
