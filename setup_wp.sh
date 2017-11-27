@@ -16,7 +16,7 @@ apt-get update
 
 apt-get install -y build-essential dos2unix gcc git libmcrypt4 libpcre3-dev ntp unzip make python2.7-dev python-pip re2c supervisor unattended-upgrades whois vim libnotify-bin pv cifs-utils
 
-apt-get install php7.1-cli php7.1-dev \
+apt-get install -y php7.1-cli php7.1-dev \
 php7.1-pgsql php7.1-sqlite3 php7.1-gd \
 php7.1-curl php7.1-memcached \
 php7.1-imap php7.1-mysql php7.1-mbstring \
@@ -28,7 +28,7 @@ sudo sed -i "s/display_errors = .*/display_errors = On/" /etc/php/7.1/cli/php.in
 sudo sed -i "s/memory_limit = .*/memory_limit = 512M/" /etc/php/7.1/cli/php.ini
 sudo sed -i "s/;date.timezone.*/date.timezone = UTC/" /etc/php/7.1/cli/php.ini
 
-apt-get install nginx php7.1-fpm
+apt-get install -y nginx php7.1-fpm
 
 if [ -f /etc/nginx/sites-enabled/default ]; then
 	rm /etc/nginx/sites-enabled/default
@@ -122,6 +122,16 @@ apt-get install -y mysql-server
 echo "default_password_lifetime = 0" >> /etc/mysql/mysql.conf.d/mysqld.cnf
 
 # Configure MySQL Remote Access
+
+# config remote Access
+echo '
+[client]
+user=root
+password=secret
+
+' >> /root/.my.cnf
+
+chmod 0600 /root/.my.cnf
 
 sed -i '/^bind-address/s/bind-address.*=.*/bind-address = 0.0.0.0/' /etc/mysql/mysql.conf.d/mysqld.cnf
 
