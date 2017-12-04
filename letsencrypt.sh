@@ -17,8 +17,13 @@ fi
 echo "======= Update OS ============"
 sudo apt update && apt upgrade
 
+echo "======= Add Certbot to Software Sources ============"
+sudo apt-get install software-properties-common
+sudo add-apt-repository ppa:certbot/certbot
+sudo apt-get update
+
 echo "======= install certbot ============"
-sudo apt install certbot
+sudo apt install python-certbot-nginx 
 
 echo "======= create test url ============"
 mkdir -p /var/www/$domain_name/.well-known/acme-challenge
