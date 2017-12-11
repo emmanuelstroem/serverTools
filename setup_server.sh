@@ -48,7 +48,8 @@ apt-get install -y aptitude
 
 # - upgrade all existing packages
 
-aptitude update; aptitude safe-upgrade -y
+aptitude update
+# aptitude safe-upgrade -y
 
 # - install base packages
 
