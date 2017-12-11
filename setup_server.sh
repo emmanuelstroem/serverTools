@@ -61,7 +61,7 @@ apt-get install -y aptitude
 
 echo "================ - Update System Packages ==============="
 # - upgrade all existing packages
-apt update && apt upgrade
+apt update && apt upgrade -y
 # aptitude safe-upgrade -y
 
 echo "================ - Install htop iftop iotop sysstat screen curl ntp ==============="
