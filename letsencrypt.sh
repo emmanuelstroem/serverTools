@@ -23,7 +23,7 @@ sudo add-apt-repository ppa:certbot/certbot
 sudo apt-get update
 
 echo "======= install certbot ============"
-sudo apt install python-certbot-nginx 
+sudo apt install -y python-certbot-nginx 
 
 echo "======= create test url ============"
 mkdir -p /var/www/$domain_name/.well-known/acme-challenge

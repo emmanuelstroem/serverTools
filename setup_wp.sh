@@ -36,6 +36,10 @@ echo "======= Adding Software Sources for PHP and Nginx ============"
 apt-add-repository ppa:ondrej/php -y
 apt-add-repository ppa:nginx/development -y
 
+echo "======= Add Certbot to Software Sources ============"
+sudo apt-get install software-properties-common
+sudo add-apt-repository ppa:certbot/certbot
+
 # Update Software Sources
 echo "======= Applying Updates for Software Sources ============"
 apt-get update
@@ -301,7 +305,11 @@ fi
 #Set permissions
 echo "=======Changing Permissions on WP Folder============"
 if [ -d /var/www/$domain_name ]; then
-	sudo chmod -R 775 /var/www/$domain_name
+
+  echo "======= Creating .well-known/acme-challenge for SSL ============"
+  mkdir -p /var/www/$domain_name/.well-known/acme-challenge
+
+  sudo chmod -R 775 /var/www/$domain_name
 	sudo chmod -R 775 /var/www/$domain_name/wp-content
 fi
 
