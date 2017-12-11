@@ -58,8 +58,8 @@ sed -i "s/ENABLED=\"false\"/ENABLED=\"true\"/" /etc/default/sysstat
 
 # - remove swap
 
-swapoff -a
-sed -i '/swap/d' /etc/fstab
+# swapoff -a
+# sed -i '/swap/d' /etc/fstab
 
 # - add secure manu password
 echo -e 'manuL1n0de2017!' | sudo passwd manu
