@@ -3,6 +3,8 @@
 # Other than this all that needs to be configured before running this script is /etc/hostname /etc/hosts to add the hostname and /etc/network/interfaces to add the LAN IP
 # You can also add any relevant SSH keys for the particular server below if you wish
 #
+sudo DEBIAN_FRONTEND=noninteractive
+
 # Security measures for SSH
 #
 # - Change ssh port to 20022
