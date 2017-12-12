@@ -239,8 +239,11 @@ sudo service supervisor start
 # Install phpmyadmin
 echo "======= Installing PHPmyadmin ============"
 echo "phpmyadmin phpmyadmin/internal/skip-preseed boolean true" | debconf-set-selections
-echo "phpmyadmin phpmyadmin/reconfigure-webserver multiselect" | debconf-set-selections
+echo "phpmyadmin phpmyadmin/reconfigure-webserver multiselect none" | debconf-set-selections
+# echo "phpmyadmin phpmyadmin/reconfigure-webserver multiselect" | debconf-set-selections
 echo "phpmyadmin phpmyadmin/dbconfig-install boolean false" | debconf-set-selections
+
+
 
 sudo apt-get -y install phpmyadmin
 
