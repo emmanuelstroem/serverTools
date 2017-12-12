@@ -19,7 +19,6 @@ fi
 echo "======= Got Domain Name ============"
 echo $domain_name.$domain_extension
 
-
 # update packages
 echo "======= Updating Ubuntu ============"
 sudo apt-get update
@@ -27,7 +26,7 @@ sudo apt-get update
 # Force Locale
 echo "======= Setting Locale ============"
 echo "LC_ALL=en_US.UTF-8" >> /etc/default/locale
-locale-gen en_US.UTF-8
+sudo locale-gen en_US.UTF-8
 
 echo "======= Installing software-properties-common and curl ============"
 sudo apt-get install -y software-properties-common curl
@@ -65,11 +64,11 @@ echo "======= Installing NGINX and PHP-fpm ============"
 sudo apt-get install -y nginx php7.1-fpm
 
 if [ -f /etc/nginx/sites-enabled/default ]; then
-	rm /etc/nginx/sites-enabled/default
+	sudo rm /etc/nginx/sites-enabled/default
 fi
 
 if [ -f /etc/nginx/sites-available/default ]; then
-	rm /etc/nginx/sites-available/default
+	sudo rm /etc/nginx/sites-available/default
 fi
 
 echo "======= Restarting NGINX ============"
@@ -78,19 +77,19 @@ sudo service nginx restart
 # Setup Some PHP-FPM Options
 echo "======= Setting up PHP-fpm Options ============"
 
-echo "xdebug.remote_enable = 1" >> /etc/php/7.1/mods-available/xdebug.ini
-echo "xdebug.remote_connect_back = 1" >> /etc/php/7.1/mods-available/xdebug.ini
-echo "xdebug.remote_port = 9000" >> /etc/php/7.1/mods-available/xdebug.ini
-echo "xdebug.max_nesting_level = 512" >> /etc/php/7.1/mods-available/xdebug.ini
-echo "opcache.revalidate_freq = 0" >> /etc/php/7.1/mods-available/opcache.ini
+sudo echo "xdebug.remote_enable = 1" >> /etc/php/7.1/mods-available/xdebug.ini
+sudo echo "xdebug.remote_connect_back = 1" >> /etc/php/7.1/mods-available/xdebug.ini
+sudo echo "xdebug.remote_port = 9000" >> /etc/php/7.1/mods-available/xdebug.ini
+sudo echo "xdebug.max_nesting_level = 512" >> /etc/php/7.1/mods-available/xdebug.ini
+sudo echo "opcache.revalidate_freq = 0" >> /etc/php/7.1/mods-available/opcache.ini
 
-sed -i "s/error_reporting = .*/error_reporting = E_ALL/" /etc/php/7.1/fpm/php.ini
-sed -i "s/display_errors = .*/display_errors = On/" /etc/php/7.1/fpm/php.ini
-sed -i "s/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/" /etc/php/7.1/fpm/php.ini
-sed -i "s/memory_limit = .*/memory_limit = 512M/" /etc/php/7.1/fpm/php.ini
-sed -i "s/upload_max_filesize = .*/upload_max_filesize = 100M/" /etc/php/7.1/fpm/php.ini
-sed -i "s/post_max_size = .*/post_max_size = 100M/" /etc/php/7.1/fpm/php.ini
-sed -i "s/;date.timezone.*/date.timezone = UTC/" /etc/php/7.1/fpm/php.ini
+sudo sed -i "s/error_reporting = .*/error_reporting = E_ALL/" /etc/php/7.1/fpm/php.ini
+sudo sed -i "s/display_errors = .*/display_errors = On/" /etc/php/7.1/fpm/php.ini
+sudo sed -i "s/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/" /etc/php/7.1/fpm/php.ini
+sudo sed -i "s/memory_limit = .*/memory_limit = 512M/" /etc/php/7.1/fpm/php.ini
+sudo sed -i "s/upload_max_filesize = .*/upload_max_filesize = 100M/" /etc/php/7.1/fpm/php.ini
+sudo sed -i "s/post_max_size = .*/post_max_size = 100M/" /etc/php/7.1/fpm/php.ini
+sudo sed -i "s/;date.timezone.*/date.timezone = UTC/" /etc/php/7.1/fpm/php.ini
 
 
 # Disable XDebug On The CLI
@@ -99,7 +98,7 @@ sudo phpdismod -s cli xdebug
 
 # Copy fastcgi_params to Nginx because they broke it on the PPA
 echo "======= Creating NGINX fastcgi_params ============"
-cat > /etc/nginx/fastcgi_params << EOF
+sudo cat > /etc/nginx/fastcgi_params << EOF
 fastcgi_param	QUERY_STRING		\$query_string;
 fastcgi_param	REQUEST_METHOD		\$request_method;
 fastcgi_param	CONTENT_TYPE		\$content_type;
@@ -154,8 +153,8 @@ sudo apt-get install -y debconf-utils
 echo "======= Setting MySQL default root password ============"
 # echo 'mysql-server mysql-server/root_password password password secret' | debconf-set-selections
 # echo 'mysql-server mysql-server/root_password_again password password secret' | debconf-set-selections
-echo "mysql-server mysql-server/root_password password secret" | sudo debconf-set-selections
-echo "mysql-server mysql-server/root_password_again password secret" | sudo debconf-set-selections
+sudo echo "mysql-server mysql-server/root_password password secret" | sudo debconf-set-selections
+sudo echo "mysql-server mysql-server/root_password_again password secret" | sudo debconf-set-selections
 
 # Update the information needed for APT by adding the 5.7 repository and updating `apt-get
 #
@@ -182,12 +181,12 @@ password=secret
 ' >> /root/.my.cnf
 
 echo "======= Setting Permissions of /root/.my.cnf to 0600 ============"
-chmod 0600 /root/.my.cnf
+sudo chmod 0600 /root/.my.cnf
 
 # Secure MySQL Install
 echo "======= Running mysql_secure_installation ============"
 echo "======= Updating MySQL Root User ============"
-mysql -u root -e 'USE mysql; UPDATE `user` SET `Host`="%" WHERE `User`="root" AND `Host`="localhost"; DELETE FROM `user` WHERE `Host` != "%" AND `User`="root"; FLUSH PRIVILEGES;'
+sudo mysql -u root -e 'USE mysql; UPDATE `user` SET `Host`="%" WHERE `User`="root" AND `Host`="localhost"; DELETE FROM `user` WHERE `Host` != "%" AND `User`="root"; FLUSH PRIVILEGES;'
 
 echo "======= Setting MySQL Port in /etc/mysql/mysql.conf.d/mysqld.cnf ============"
 sudo sed -i 's/127\.0\.0\.1/0\.0\.0\.0/g' /etc/mysql/mysql.conf.d/mysqld.cnf
@@ -202,27 +201,27 @@ echo "======= Setting MySQL Bind Address to 0.0.0.0 ============"
 sudo sed -i '/^bind-address/s/bind-address.*=.*/bind-address = 0.0.0.0/' /etc/mysql/mysql.conf.d/mysqld.cnf
 
 echo "======= Creating MySQL Root User ============"
-mysql --user="root" --password="secret" -e "GRANT ALL ON *.* TO root@'0.0.0.0' IDENTIFIED BY 'secret' WITH GRANT OPTION;"
+sudo mysql --user="root" --password="secret" -e "GRANT ALL ON *.* TO root@'0.0.0.0' IDENTIFIED BY 'secret' WITH GRANT OPTION;"
 
 echo "======= Restarting MySQL ============"
 sudo service mysql restart
 
 echo "======= Creating MySQL $domain_name User ============"
-mysql --user="root" --password="secret" -e "CREATE USER '$db_user'@'0.0.0.0' IDENTIFIED BY '$db_pass';"
-mysql --user="root" --password="secret" -e "GRANT ALL ON *.* TO '$db_user'@'0.0.0.0' IDENTIFIED BY '$db_pass' WITH GRANT OPTION;"
-mysql --user="root" --password="secret" -e "GRANT ALL ON *.* TO '$db_user'@'%' IDENTIFIED BY '$db_pass' WITH GRANT OPTION;"
+sudo mysql --user="root" --password="secret" -e "CREATE USER '$db_user'@'0.0.0.0' IDENTIFIED BY '$db_pass';"
+sudo mysql --user="root" --password="secret" -e "GRANT ALL ON *.* TO '$db_user'@'0.0.0.0' IDENTIFIED BY '$db_pass' WITH GRANT OPTION;"
+sudo mysql --user="root" --password="secret" -e "GRANT ALL ON *.* TO '$db_user'@'%' IDENTIFIED BY '$db_pass' WITH GRANT OPTION;"
 
 echo "======= Flushing Privileges MySQL ============"
-mysql --user="root" --password="secret" -e "FLUSH PRIVILEGES;"
+sudo mysql --user="root" --password="secret" -e "FLUSH PRIVILEGES;"
 
 echo "======= Creating DB $domain_name ============"
-mysql --user="root" --password="secret" -e "CREATE DATABASE $domain_name character set UTF8mb4 collate utf8mb4_bin;"
+sudo mysql --user="root" --password="secret" -e "CREATE DATABASE $domain_name character set UTF8mb4 collate utf8mb4_bin;"
 
 echo "======= Restarting MySQL ============"
 sudo service mysql restart
 
 echo "======= Flushing Privileges MySQL ============"
-mysql --user="root" --password="secret" -e "FLUSH PRIVILEGES;"
+sudo mysql --user="root" --password="secret" -e "FLUSH PRIVILEGES;"
 
 echo "======= Restarting MySQL ============"
 sudo service mysql restart
@@ -238,10 +237,10 @@ sudo service supervisor start
 
 # Install phpmyadmin
 echo "======= Installing PHPmyadmin ============"
-echo "phpmyadmin phpmyadmin/internal/skip-preseed boolean true" | debconf-set-selections
-echo "phpmyadmin phpmyadmin/reconfigure-webserver multiselect none" | debconf-set-selections
+sudo echo "phpmyadmin phpmyadmin/internal/skip-preseed boolean true" | debconf-set-selections
+sudo echo "phpmyadmin phpmyadmin/reconfigure-webserver multiselect none" | debconf-set-selections
 # echo "phpmyadmin phpmyadmin/reconfigure-webserver multiselect" | debconf-set-selections
-echo "phpmyadmin phpmyadmin/dbconfig-install boolean false" | debconf-set-selections
+sudo echo "phpmyadmin phpmyadmin/dbconfig-install boolean false" | debconf-set-selections
 
 
 
