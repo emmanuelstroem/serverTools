@@ -308,3 +308,10 @@ sudo service nginx restart
 echo "======= Cleaning Up ============"
 sudo apt-get -y autoremove
 sudo apt-get -y clean
+
+if [ -f /var/www/latest.tar.gz ]; then
+	cd /var/www/
+	rm -rf latest.tar.gz
+fi
+
+echo "######### $domain_name.$domain_extension Setup Complete. Adios! "
