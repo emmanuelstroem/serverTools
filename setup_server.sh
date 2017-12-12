@@ -43,10 +43,6 @@ EOF
 
 echo "================ CREATE USER ==============="
 
-# echo " ************* - Add sudo ability to User "
-# # - add sudo ability
-# echo "manu   ALL=NOPASSWD: ALL" >> /etc/sudoers
-
 echo " ************* - Configure SSH Keys ==============="
 # - configure SSH allowed keys
 echo " ************* - Create Home Directory + .ssh Directory ****************"
@@ -65,6 +61,10 @@ useradd -d /home/$username $username
 
 echo " ************* - Add User to sudo Group ****************"
 usermod -aG sudo $username
+
+echo " ************* - Add sudo ability to User ****************"
+# # - add sudo ability
+echo "$username   ALL=NOPASSWD: ALL" >> /etc/sudoers
 
 echo " ************* - $username chown -R  Permissions on Home Directory ****************"
 chown -R $username:$username /home/$username/
