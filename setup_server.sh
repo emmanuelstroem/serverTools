@@ -105,8 +105,7 @@ echo "================ - Enable Sysstat ==============="
 sed -i "s/ENABLED=\"false\"/ENABLED=\"true\"/" /etc/default/sysstat
 
 echo "================ - Change Permissions on /etc/ and /var/ ==============="
-chmod 0755 -R /etc/
-chmod 0755 -R /var/
+chmod 0755 -R /var/www
 # echo "================ - Install Fail2Ban ==============="
 # apt-get install -y fail2ban
 #
@@ -120,4 +119,4 @@ chmod 0755 -R /var/
 
 echo "================ - REBOOT ==============="
 # Reboot - kinda obvious no?
-reboot
+# reboot
