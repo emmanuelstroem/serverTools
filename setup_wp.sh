@@ -22,7 +22,7 @@ echo $domain_name.$domain_extension
 
 # update packages
 echo "======= Updating Ubuntu ============"
-apt-get update
+sudo apt-get update
 
 # Force Locale
 echo "======= Setting Locale ============"
@@ -30,11 +30,11 @@ echo "LC_ALL=en_US.UTF-8" >> /etc/default/locale
 locale-gen en_US.UTF-8
 
 echo "======= Installing software-properties-common and curl ============"
-apt-get install -y software-properties-common curl
+sudo apt-get install -y software-properties-common curl
 
 echo "======= Adding Software Sources for PHP and Nginx ============"
-apt-add-repository ppa:ondrej/php -y
-apt-add-repository ppa:nginx/development -y
+sudo apt-add-repository ppa:ondrej/php -y
+sudo apt-add-repository ppa:nginx/development -y
 
 echo "======= Add Certbot to Software Sources ============"
 sudo apt-get install software-properties-common
@@ -42,13 +42,13 @@ sudo add-apt-repository ppa:certbot/certbot
 
 # Update Software Sources
 echo "======= Applying Updates for Software Sources ============"
-apt-get update
+sudo apt-get update
 
 echo "======= Installing System Dependencies ============"
-apt-get install -y build-essential dos2unix gcc git libmcrypt4 libpcre3-dev ntp unzip make python2.7-dev python-pip re2c supervisor unattended-upgrades whois vim libnotify-bin pv cifs-utils
+sudo apt-get install -y build-essential dos2unix gcc git libmcrypt4 libpcre3-dev ntp unzip make python2.7-dev python-pip re2c supervisor unattended-upgrades whois vim libnotify-bin pv cifs-utils
 
 echo "======= Installing PHP Dependencies ============"
-apt-get install -y php7.1-cli php7.1-dev \
+sudo apt-get install -y php7.1-cli php7.1-dev \
 php7.1-pgsql php7.1-sqlite3 php7.1-gd \
 php7.1-curl php7.1-memcached \
 php7.1-imap php7.1-mysql php7.1-mbstring \
@@ -62,7 +62,7 @@ sudo sed -i "s/memory_limit = .*/memory_limit = 512M/" /etc/php/7.1/cli/php.ini
 sudo sed -i "s/;date.timezone.*/date.timezone = UTC/" /etc/php/7.1/cli/php.ini
 
 echo "======= Installing NGINX and PHP-fpm ============"
-apt-get install -y nginx php7.1-fpm
+sudo apt-get install -y nginx php7.1-fpm
 
 if [ -f /etc/nginx/sites-enabled/default ]; then
 	rm /etc/nginx/sites-enabled/default
@@ -73,7 +73,7 @@ if [ -f /etc/nginx/sites-available/default ]; then
 fi
 
 echo "======= Restarting NGINX ============"
-service nginx restart
+sudo service nginx restart
 
 # Setup Some PHP-FPM Options
 echo "======= Setting up PHP-fpm Options ============"
@@ -124,29 +124,29 @@ EOF
 
 # Set The Nginx & PHP-FPM User
 echo "======= Setting NGINX and PHP-fpm User ============"
-sed -i "s/user www-data;/user www-data;/" /etc/nginx/nginx.conf
-sed -i "s/# server_names_hash_bucket_size.*/server_names_hash_bucket_size 64;/" /etc/nginx/nginx.conf
+sudo sed -i "s/user www-data;/user www-data;/" /etc/nginx/nginx.conf
+sudo sed -i "s/# server_names_hash_bucket_size.*/server_names_hash_bucket_size 64;/" /etc/nginx/nginx.conf
 
-sed -i "s/user = www-data/user = www-data/" /etc/php/7.1/fpm/pool.d/www.conf
-sed -i "s/group = www-data/group = www-data/" /etc/php/7.1/fpm/pool.d/www.conf
+sudo sed -i "s/user = www-data/user = www-data/" /etc/php/7.1/fpm/pool.d/www.conf
+sudo sed -i "s/group = www-data/group = www-data/" /etc/php/7.1/fpm/pool.d/www.conf
 
-sed -i "s/listen\.owner.*/listen.owner = www-data/" /etc/php/7.1/fpm/pool.d/www.conf
-sed -i "s/listen\.group.*/listen.group = www-data/" /etc/php/7.1/fpm/pool.d/www.conf
-sed -i "s/;listen\.mode.*/listen.mode = 0666/" /etc/php/7.1/fpm/pool.d/www.conf
+sudo sed -i "s/listen\.owner.*/listen.owner = www-data/" /etc/php/7.1/fpm/pool.d/www.conf
+sudo sed -i "s/listen\.group.*/listen.group = www-data/" /etc/php/7.1/fpm/pool.d/www.conf
+sudo sed -i "s/;listen\.mode.*/listen.mode = 0666/" /etc/php/7.1/fpm/pool.d/www.conf
 
 echo "======= Restarting NGINX and PHP-fpm ============"
-service nginx restart
-service php7.1-fpm restart
+sudo service nginx restart
+sudo service php7.1-fpm restart
 
 # Add grimlock User To WWW-Data
 echo "======= Adding www-data user  ============"
-usermod -a -G www-data www-data
+sudo usermod -a -G www-data www-data
 id www-data
 groups www-data
 
 # Install debconf-utils
 echo "======= Installing debconf-utils ============"
-apt-get install -y debconf-utils
+sudo apt-get install -y debconf-utils
 
 # apt-get -y install zsh htop
 
@@ -165,7 +165,7 @@ echo "mysql-server mysql-server/root_password_again password secret" | sudo debc
 # EOF
 
 echo "======= Installing MySQL ============"
-apt-get install -y mysql-server-5.7
+sudo apt-get install -y mysql-server-5.7
 
 # Configure MySQL Remote Access
 echo "======= Removing any previous /root/.my.cnf ============"
@@ -174,7 +174,7 @@ if [ -f /root/.my.cnf ]; then
 fi
 
 echo "======= Creating /root/.my.cnf ============"
-echo '
+sudo echo '
 [client]
 user=root
 password=secret
@@ -190,7 +190,7 @@ echo "======= Updating MySQL Root User ============"
 mysql -u root -e 'USE mysql; UPDATE `user` SET `Host`="%" WHERE `User`="root" AND `Host`="localhost"; DELETE FROM `user` WHERE `Host` != "%" AND `User`="root"; FLUSH PRIVILEGES;'
 
 echo "======= Setting MySQL Port in /etc/mysql/mysql.conf.d/mysqld.cnf ============"
-sed -i 's/127\.0\.0\.1/0\.0\.0\.0/g' /etc/mysql/mysql.conf.d/mysqld.cnf
+sudo sed -i 's/127\.0\.0\.1/0\.0\.0\.0/g' /etc/mysql/mysql.conf.d/mysqld.cnf
 
 
 # Configure MySQL Password Lifetime
@@ -199,13 +199,13 @@ echo "default_password_lifetime = 0" >> /etc/mysql/mysql.conf.d/mysqld.cnf
 
 
 echo "======= Setting MySQL Bind Address to 0.0.0.0 ============"
-sed -i '/^bind-address/s/bind-address.*=.*/bind-address = 0.0.0.0/' /etc/mysql/mysql.conf.d/mysqld.cnf
+sudo sed -i '/^bind-address/s/bind-address.*=.*/bind-address = 0.0.0.0/' /etc/mysql/mysql.conf.d/mysqld.cnf
 
 echo "======= Creating MySQL Root User ============"
 mysql --user="root" --password="secret" -e "GRANT ALL ON *.* TO root@'0.0.0.0' IDENTIFIED BY 'secret' WITH GRANT OPTION;"
 
 echo "======= Restarting MySQL ============"
-service mysql restart
+sudo service mysql restart
 
 echo "======= Creating MySQL $domain_name User ============"
 mysql --user="root" --password="secret" -e "CREATE USER '$db_user'@'0.0.0.0' IDENTIFIED BY '$db_pass';"
@@ -219,13 +219,13 @@ echo "======= Creating DB $domain_name ============"
 mysql --user="root" --password="secret" -e "CREATE DATABASE $domain_name character set UTF8mb4 collate utf8mb4_bin;"
 
 echo "======= Restarting MySQL ============"
-service mysql restart
+sudo service mysql restart
 
 echo "======= Flushing Privileges MySQL ============"
 mysql --user="root" --password="secret" -e "FLUSH PRIVILEGES;"
 
 echo "======= Restarting MySQL ============"
-service mysql restart
+sudo service mysql restart
 
 # Add Timezone Support To MySQL
 
@@ -233,8 +233,8 @@ mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql --user=root --password=secret my
 
 # Configure Supervisor
 echo "======= Enabling and Starting Supervisor ============"
-systemctl enable supervisor.service
-service supervisor start
+sudo systemctl enable supervisor.service
+sudo service supervisor start
 
 # Install phpmyadmin
 echo "======= Installing PHPmyadmin ============"
@@ -315,7 +315,7 @@ fi
 
 #Set permissions
 echo "======= Chown -R www-data:www-data /var/www/$domain_name/wp-content ============"
-chown -R www-data:www-data /var/www/$domain_name/wp-content/
+sudo chown -R www-data:www-data /var/www/$domain_name/wp-content/
 
 # Wordpress Salt
 echo "=======Generating Wordpress Salt ============"
@@ -426,7 +426,7 @@ echo "======= Change permissions of WP Folders ============"
 sudo find /var/www/$domain_name/ -type d -exec chmod 755 {} +
 
 echo "======= Change permissions of wp-config ============"
-	chmod 0644 /var/www/$domain_name/wp-config.php
+chmod 0644 /var/www/$domain_name/wp-config.php
 
 # remove config file
 echo "======= Removing NGINX Website Conf Files ============"
@@ -482,5 +482,5 @@ echo "======= Restarting NGINX ============"
 sudo service nginx restart
 
 echo "======= Cleaning Up ============"
-apt-get -y autoremove
-apt-get -y clean
+sudo apt-get -y autoremove
+sudo apt-get -y clean

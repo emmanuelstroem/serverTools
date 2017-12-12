@@ -66,6 +66,9 @@ echo " ************* - Add sudo ability to User ****************"
 # # - add sudo ability
 echo "$username   ALL=NOPASSWD: ALL" >> /etc/sudoers
 
+echo " ************* - Set Default Shell to /bin/bash ****************"
+usermod -s /bin/bash $username
+
 echo " ************* - $username chown -R  Permissions on Home Directory ****************"
 chown -R $username:$username /home/$username/
 
