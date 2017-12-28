@@ -19,42 +19,37 @@ fi
 echo "======= Got Domain Name ============"
 echo $domain_name.$domain_extension
 
+
 # update packages
 echo "======= Updating Ubuntu ============"
-sudo apt-get update
+apt-get update
 
-# Force Locale
-echo "======= Setting Locale ============"
-echo "LC_ALL=en_US.UTF-8" >> /etc/default/locale
-sudo locale-gen en_US.UTF-8
 
-echo "======= Installing software-properties-common and curl ============"
-sudo apt-get install -y software-properties-common curl
+echo "======= Creating MySQL Root User ============"
+mysql --user="root" --password="secret" -e "GRANT ALL ON *.* TO root@'0.0.0.0' IDENTIFIED BY 'secret' WITH GRANT OPTION;"
 
-# Update Software Sources
-echo "======= Applying Updates for Software Sources ============"
-sudo apt-get update
-
+echo "======= Restarting MySQL ============"
+service mysql restart
 
 echo "======= Creating MySQL $domain_name User ============"
-sudo mysql --user="root" --password="secret" -e "CREATE USER '$db_user'@'0.0.0.0' IDENTIFIED BY '$db_pass';"
-sudo mysql --user="root" --password="secret" -e "GRANT ALL ON *.* TO '$db_user'@'0.0.0.0' IDENTIFIED BY '$db_pass' WITH GRANT OPTION;"
-sudo mysql --user="root" --password="secret" -e "GRANT ALL ON *.* TO '$db_user'@'%' IDENTIFIED BY '$db_pass' WITH GRANT OPTION;"
+mysql --user="$db_user" --password="secret" -e "CREATE USER '$domain_name'@'0.0.0.0' IDENTIFIED BY 'secret';"
+mysql --user="$db_user" --password="secret" -e "GRANT ALL ON *.* TO '$domain_name'@'0.0.0.0' IDENTIFIED BY 'secret' WITH GRANT OPTION;"
+mysql --user="$db_user" --password="secret" -e "GRANT ALL ON *.* TO '$domain_name'@'%' IDENTIFIED BY 'secret' WITH GRANT OPTION;"
 
 echo "======= Flushing Privileges MySQL ============"
-sudo mysql --user="root" --password="secret" -e "FLUSH PRIVILEGES;"
+mysql --user="root" --password="secret" -e "FLUSH PRIVILEGES;"
 
 echo "======= Creating DB $domain_name ============"
-sudo mysql --user="root" --password="secret" -e "CREATE DATABASE $domain_name character set UTF8mb4 collate utf8mb4_bin;"
+mysql --user="root" --password="secret" -e "CREATE DATABASE $domain_name character set UTF8mb4 collate utf8mb4_bin;"
 
 echo "======= Restarting MySQL ============"
-sudo service mysql restart
+service mysql restart
 
 echo "======= Flushing Privileges MySQL ============"
-sudo mysql --user="root" --password="secret" -e "FLUSH PRIVILEGES;"
+mysql --user="root" --password="secret" -e "FLUSH PRIVILEGES;"
 
 echo "======= Restarting MySQL ============"
-sudo service mysql restart
+service mysql restart
 
 # Add Timezone Support To MySQL
 
@@ -62,8 +57,16 @@ mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql --user=root --password=secret my
 
 # Configure Supervisor
 echo "======= Enabling and Starting Supervisor ============"
-sudo systemctl enable supervisor.service
-sudo service supervisor start
+systemctl enable supervisor.service
+service supervisor start
+
+# Install phpmyadmin
+echo "======= Installing PHPmyadmin ============"
+echo "phpmyadmin phpmyadmin/internal/skip-preseed boolean true" | debconf-set-selections
+echo "phpmyadmin phpmyadmin/reconfigure-webserver multiselect" | debconf-set-selections
+echo "phpmyadmin phpmyadmin/dbconfig-install boolean false" | debconf-set-selections
+
+sudo apt-get -y install phpmyadmin
 
 echo "======= Removing PHPmyadmin Symlink ============"
 if [ -d /usr/share/nginx/html/phpmyadmin ]; then
@@ -73,6 +76,20 @@ fi
 echo "======= Creating PHPmyadmin Symlink ============"
 sudo ln -s /usr/share/phpmyadmin /usr/share/nginx/html
 
+sudo apt -y install php-mcrypt php-mbstring
+
+echo "======= Creating /etc/php/7.1/fpm/pool.d/$domain_name.conf ============"
+sudo echo '
+listen = /run/php/php7.1-fpm.sock
+pm = dynamic
+pm.max_children = 25
+pm.start_servers = 10
+pm.min_spare_servers = 5
+pm.max_spare_servers = 25
+pm.max_requests = 500
+
+' >> /etc/php/7.1/fpm/pool.d/$domain_name.conf
+
 echo "======= Restarting Nginx and PHP-fpm ============"
 sudo service nginx restart
 sudo service php7.1-fpm restart
@@ -81,10 +98,10 @@ sudo service php7.1-fpm restart
 #remove previous downloads
 echo "=======Removing Old Wordpress============ \n"
 echo "....nothing here..."
-if [ -f /var/www/latest.tar.gz ]; then
-	cd /var/www/
-	rm -rf latest.tar.gz
-fi
+# if [ -f /var/www/wordpress ]; then
+# 	cd /var/www/
+# 	rm -rf wordpress
+# fi
 
 echo "=======Downloading Wordpress============"
 # Download Wordpress
@@ -100,12 +117,6 @@ if [ -f /var/www/latest.tar.gz ]; then
 	cd /var/www/
 	tar xzvf latest.tar.gz
 fi
-
-# Rename the directzory name
-# echo "=======Renaming wp-admin Folder to $domain_name ============"
-# if [ -d /var/www/wordpress/wp-admin ]; then
-# 	mv /var/www/wordpress/wp-admin/ manage
-# fi
 
 echo "=======Remove Old Site Folder============"
 if [ -d /var/www/$domain_name ]; then
@@ -124,17 +135,9 @@ fi
 #Set permissions
 echo "=======Changing Permissions on WP Folder============"
 if [ -d /var/www/$domain_name ]; then
-
-  echo "======= Creating .well-known/acme-challenge for SSL ============"
-  mkdir -p /var/www/$domain_name/.well-known/acme-challenge
-
-  sudo chmod -R 775 /var/www/$domain_name
+	sudo chmod -R 775 /var/www/$domain_name
 	sudo chmod -R 775 /var/www/$domain_name/wp-content
 fi
-
-#Set permissions
-echo "======= Chown -R www-data:www-data /var/www/$domain_name/wp-content ============"
-sudo chown -R www-data:www-data /var/www/$domain_name/wp-content/
 
 # Wordpress Salt
 echo "=======Generating Wordpress Salt ============"
@@ -171,10 +174,10 @@ echo "
 define('DB_NAME', '$domain_name');
 
 /** MySQL database username */
-define('DB_USER', '$db_user');
+define('DB_USER', '$domain_name');
 
 /** MySQL database password */
-define('DB_PASSWORD', '$db_pass');
+define('DB_PASSWORD', 'secret');
 
 /** MySQL hostname */
 define('DB_HOST', 'localhost');
@@ -188,6 +191,9 @@ define('DB_COLLATE', '');
 /** Permissions */
 /** define( ‘FS_CHMOD_DIR’, ( 0755 & ~ umask() ) ); */
 /** define( ‘FS_CHMOD_FILE’, ( 0644 & ~ umask() ) ); */
+
+/** Disable FTP for installing a theme */
+define('FS_METHOD', 'direct');
 
 /**#@+
  * Authentication Unique Keys and Salts.
@@ -245,7 +251,7 @@ echo "======= Change permissions of WP Folders ============"
 sudo find /var/www/$domain_name/ -type d -exec chmod 755 {} +
 
 echo "======= Change permissions of wp-config ============"
-chmod 0644 /var/www/$domain_name/wp-config.php
+	chmod 0644 /var/www/$domain_name/wp-config.php
 
 # remove config file
 echo "======= Removing NGINX Website Conf Files ============"
@@ -255,17 +261,37 @@ rm -f /etc/nginx/sites-available/$domain_name.conf
 #Config file
 echo "======= Creating NGINX $domain_name.conf ============"
 echo "
-	server {
+
+# Expires map
+map $sent_http_content_type $expires {
+    default                    off;
+    text/html                  epoch;
+    text/css                   max;
+    application/javascript     max;
+    ~image/                    max;
+}
+
+server {
     listen 80;
     listen [::]:80;
 
     root /var/www/$domain_name;
     index index.php index.html index.htm;
 
-    server_name $domain_name.$domain_extension;
+    server_name $domain_name.$domain_extension *.$domain_name.$domain_extension;
+
+    # logs
+    access_log /var/log/nginx/$domain_name.$domain_extension-access.log;
+    error_log /var/log/nginx/$domain_name.$domain_extension-error.log;
 
     location / {
         try_files \$uri \$uri/ /index.php?\$query_string;
+    }
+
+    expires	$expires;
+
+    location ~*  \.(jpg|jpeg|png|gif|ico|css|js|pdf)$ {
+        expires 7d;
     }
 
     location /phpmyadmin {
@@ -296,22 +322,26 @@ echo "
 echo "======= Creating Symlink for config file ============"
 ln -s /etc/nginx/sites-available/$domain_name.conf /etc/nginx/sites-enabled/
 
-echo "======= Add site to hosts file ============"
-sudo cat > /etc/hosts << EOF
-172.104.247.123     $domain_name.$domain_extension
-EOF
+# Add grimlock User To WWW-Data
+echo "======= Adding www-data user  ============"
+sudo usermod -aG www-data $USER
+
+# Add grimlock User To WWW-Data
+echo "======= Adding domain to /etch/hosts  ============"
+ip_address=`ifconfig ${NET_IF} | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1'`
+
+echo "
+$ip_address		   $domain_name.$domain_extension
+" >>/etc/hosts
+
+echo "======= www-data owning the /var/www folder  ============"
+sudo chown -R www-data:www-data /var/www
+sudo chmod -R g+rwX /var/www
 
 # Clean Up
 echo "======= Restarting NGINX ============"
 sudo service nginx restart
 
 echo "======= Cleaning Up ============"
-sudo apt-get -y autoremove
-sudo apt-get -y clean
-
-if [ -f /var/www/latest.tar.gz ]; then
-	cd /var/www/
-	rm -rf latest.tar.gz
-fi
-
-echo "######### $domain_name.$domain_extension Setup Complete. Adios! "
+apt-get -y autoremove
+apt-get -y clean

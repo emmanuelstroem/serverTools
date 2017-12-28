@@ -326,6 +326,14 @@ ln -s /etc/nginx/sites-available/$domain_name.conf /etc/nginx/sites-enabled/
 echo "======= Adding www-data user  ============"
 sudo usermod -aG www-data $USER
 
+# Add grimlock User To WWW-Data
+echo "======= Adding domain to /etch/hosts  ============"
+ip_address=`ifconfig ${NET_IF} | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1'`
+
+echo "
+$ip_address		   $domain_name.$domain_extension
+" >>/etc/hosts
+
 echo "======= www-data owning the /var/www folder  ============"
 sudo chown -R www-data:www-data /var/www
 sudo chmod -R g+rwX /var/www
