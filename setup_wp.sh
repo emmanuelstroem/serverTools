@@ -120,6 +120,40 @@ fastcgi_param	HTTPS			\$https if_not_empty;
 fastcgi_param	REDIRECT_STATUS		200;
 EOF
 
+# Set The Nginx Compression
+echo "======= Setting NGINX Conpression in nginx.conf ============"
+sudo sed -i "s/# gzip_vary on;/gzip_vary on;/" /etc/nginx/nginx.conf
+sudo sed -i "s/# gzip_proxied any;/gzip_proxied any;/" /etc/nginx/nginx.conf
+sudo sed -i "s/# gzip_comp_level 6;/gzip_comp_level 6;/" /etc/nginx/nginx.conf
+sudo sed -i "s/# gzip_buffers 16 8k;/gzip_buffers 16 8k;/" /etc/nginx/nginx.conf
+sudo sed -i "s/# gzip_http_version 1.1;/gzip_http_version 1.1;/" /etc/nginx/nginx.conf
+sudo sed -i "s/# gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;/
+gzip_types
+application/atom+xml
+application/javascript
+application/json
+application/ld+json
+application/manifest+json
+application/rss+xml
+application/vnd.geo+json
+application/vnd.ms-fontobject
+application/x-font-ttf
+application/x-web-app-manifest+json
+application/xhtml+xml
+application/xml
+font/opentype
+image/bmp
+image/svg+xml
+image/x-icon
+text/cache-manifest
+text/css
+text/plain
+text/vcard
+text/vnd.rim.location.xloc
+text/vtt
+text/x-component
+text/x-cross-domain-policy;
+# text/html is always compressed by gzip module/" /etc/nginx/nginx.conf
 
 # Set The Nginx & PHP-FPM User
 echo "======= Setting NGINX and PHP-fpm User ============"
@@ -133,6 +167,31 @@ sudo sed -i "s/listen\.owner.*/listen.owner = www-data/" /etc/php/7.1/fpm/pool.d
 sudo sed -i "s/listen\.group.*/listen.group = www-data/" /etc/php/7.1/fpm/pool.d/www.conf
 sudo sed -i "s/;listen\.mode.*/listen.mode = 0666/" /etc/php/7.1/fpm/pool.d/www.conf
 
+# Set php.ini config
+echo "======= Setting php.ini upload_max_filesize ============"
+sudo sed -i "s/upload_max_filesize = 100M/upload_max_filesize = 1024M/" /etc/php/7.1/fpm/php.ini
+sudo sed -i "s/max_execution_time = 30/max_execution_time = 60/" /etc/php/7.1/fpm/php.ini
+
+# Set /etc/php/7.1/fpm/pool.d/www.conf config
+echo "======= Setting PHP-fpm Pool config ============"
+sudo sed -i "s/pm.max_children = 5/pm.max_children = 25/" /etc/php/7.1/fpm/pool.d/www.conf
+sudo sed -i "s/pm.start_servers = 2/pm.start_servers = 10/" /etc/php/7.1/fpm/pool.d/www.conf
+sudo sed -i "s/pm.min_spare_servers = 1/pm.min_spare_servers = 5/" /etc/php/7.1/fpm/pool.d/www.conf
+sudo sed -i "s/pm.max_spare_servers = 3/pm.max_spare_servers = 25/" /etc/php/7.1/fpm/pool.d/www.conf
+sudo sed -i "s/;pm.max_requests = 500/pm.max_requests = 500/" /etc/php/7.1/fpm/pool.d/www.conf
+
+echo "======= Creating /etc/php/7.1/fpm/pool.d/$domain_name.conf ============"
+sudo echo '
+listen = /run/php/php7.1-fpm.sock
+pm = dynamic
+pm.max_children = 25
+pm.start_servers = 10
+pm.min_spare_servers = 5
+pm.max_spare_servers = 25
+pm.max_requests = 500
+
+' >> /etc/php/7.1/fpm/pool.d/$domain_name.conf
+
 echo "======= Restarting NGINX and PHP-fpm ============"
 sudo service nginx restart
 sudo service php7.1-fpm restart
@@ -142,6 +201,11 @@ echo "======= Adding www-data user  ============"
 sudo usermod -a -G www-data www-data
 id www-data
 groups www-data
+
+sudo usermod -aG www-data $USER
+
+echo "======= www-data owning the /var/www folder  ============"
+sudo chown -R www-data:www-data /var/www
 
 # Install debconf-utils
 echo "======= Installing debconf-utils ============"
@@ -372,6 +436,9 @@ define('DB_COLLATE', '');
 /** define( ‘FS_CHMOD_DIR’, ( 0755 & ~ umask() ) ); */
 /** define( ‘FS_CHMOD_FILE’, ( 0644 & ~ umask() ) ); */
 
+/** Disable FTP for installing a theme */
+define('FS_METHOD', 'direct');
+
 /**#@+
  * Authentication Unique Keys and Salts.
  *
@@ -438,17 +505,38 @@ rm -f /etc/nginx/sites-available/$domain_name.conf
 #Config file
 echo "======= Creating NGINX $domain_name.conf ============"
 echo "
-	server {
+
+# Expires map
+map $sent_http_content_type $expires {
+    default                    off;
+    text/html                  epoch;
+    text/css                   max;
+    application/javascript     max;
+    ~image/                    max;
+}
+
+
+server {
     listen 80;
     listen [::]:80;
 
     root /var/www/$domain_name;
     index index.php index.html index.htm;
 
-    server_name $domain_name.$domain_extension;
+    server_name $domain_name.$domain_extension *.$domain_name.$domain_extension;
+
+    # logs
+    access_log /var/log/nginx/$domain_name.$domain_extension-access.log;
+    error_log /var/log/nginx/$domain_name.$domain_extension-error.log;
 
     location / {
         try_files \$uri \$uri/ /index.php?\$query_string;
+    }
+
+    expires	$expires;
+
+    location ~*  \.(jpg|jpeg|png|gif|ico|css|js|pdf)$ {
+        expires 7d;
     }
 
     location /phpmyadmin {
@@ -473,6 +561,32 @@ echo "
         fastcgi_index index.php;
         fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
         include fastcgi_params;
+    }
+
+    # CACHING
+    location ~* .(ogg|ogv|svg|svgz|eot|otf|woff|mp4|ttf|css|rss|atom|js|jpg
+              |jpeg|gif|png|ico|zip|tgz|gz|rar|bz2|doc|xls|exe|ppt|tar|mid
+              |midi|wav|bmp|rtf)$ {
+      expires max;
+      log_not_found off;
+      access_log off;
+    }
+
+    # Deny public access to wp-config.php
+    location ~* wp-config.php {
+       deny all;
+    }
+
+    # Deny access to uploads that aren’t images, videos, music, etc.
+    location ~* ^/wp-content/uploads/.*.(html|htm|shtml|php|js|swf)$ {
+        deny all;
+    }
+
+    # Deny access to wp-login.php
+    location = /wp-login.php {
+        limit_req zone=one burst=1 nodelay;
+        fastcgi_pass unix:/run/php/php7.1-fpm.sock;
+        #fastcgi_pass 127.0.0.1:9000;
     }
 } " >>/etc/nginx/sites-available/$domain_name.conf
 

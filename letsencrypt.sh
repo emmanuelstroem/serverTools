@@ -17,19 +17,19 @@ fi
 echo "======= Update OS ============"
 sudo apt update && apt upgrade
 
-echo "======= Add Certbot to Software Sources ============"
-sudo apt-get install software-properties-common
-sudo add-apt-repository ppa:certbot/certbot
-sudo apt-get update
+# echo "======= Add Certbot to Software Sources ============"
+# sudo apt-get install software-properties-common
+# sudo add-apt-repository ppa:certbot/certbot
+# sudo apt-get update
 
-echo "======= install certbot ============"
-sudo apt install -y python-certbot-nginx 
+# echo "======= install certbot ============"
+# sudo apt install -y certbot python-certbot-nginx
 
-echo "======= create test url ============"
-mkdir -p /var/www/$domain_name/.well-known/acme-challenge
+# echo "======= create test url ============"
+# mkdir -p /var/www/$domain_name/.well-known/acme-challenge
 
 echo "======= create directory for certificates ============"
-mkdir -p /etc/letsencrypt/live/
+mkdir -p /etc/letsencrypt/
 
 echo "======= change permissions on /etc/letsencrypt/* to 0755 ============"
 sudo chmod -R 0755 /etc/letsencrypt/
