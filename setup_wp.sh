@@ -21,7 +21,7 @@ echo $domain_name.$domain_extension
 
 # update packages
 echo "======= Updating Ubuntu ============"
-sudo apt-get -o Acquire::ForceIPv4=true update
+# sudo apt-get -o Acquire::ForceIPv4=true update
 
 # Force Locale
 echo "======= Setting Locale ============"
