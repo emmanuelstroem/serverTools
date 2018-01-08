@@ -507,14 +507,6 @@ echo "======= Creating NGINX $domain_name.conf ============"
 echo "
 
 # Expires map
-map $sent_http_content_type $expires {
-    default                    off;
-    text/html                  epoch;
-    text/css                   max;
-    application/javascript     max;
-    ~image/                    max;
-}
-
 
 server {
     listen 80;
@@ -532,8 +524,6 @@ server {
     location / {
         try_files \$uri \$uri/ /index.php?\$query_string;
     }
-
-    expires	$expires;
 
     location ~*  \.(jpg|jpeg|png|gif|ico|css|js|pdf)$ {
         expires 7d;
