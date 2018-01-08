@@ -105,7 +105,13 @@ echo "================ - Enable Sysstat ==============="
 sed -i "s/ENABLED=\"false\"/ENABLED=\"true\"/" /etc/default/sysstat
 
 echo "================ - Change Permissions on /etc/ and /var/ ==============="
-chmod 0755 -R /var/www
+if [ -d /var/www ]; then
+    chmod 0755 -R /var/www
+else
+    mkdir /var/www
+    chmod 0755 -R /var/www
+fi
+
 # echo "================ - Install Fail2Ban ==============="
 # apt-get install -y fail2ban
 #
