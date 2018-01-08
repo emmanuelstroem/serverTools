@@ -22,8 +22,6 @@ echo "======= Got Domain Name ============"
 echo $username
 echo $password
 
-
-
 # Security measures for SSH
 #
 echo "=============== - Change ssh port to 20022 ==============="
@@ -94,7 +92,7 @@ apt-get install -y aptitude
 
 echo "================ - Update System Packages ==============="
 # - upgrade all existing packages
-aptitude update
+apt-get -o Acquire::ForceIPv4=true update
 # aptitude update && aptitude --assume-yes safe-upgrade -y
 aptitude -y -o DPkg::options::="--force-confdef" -o DPkg::options::="--force-confold" upgrade
 
