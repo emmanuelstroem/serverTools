@@ -78,17 +78,17 @@ sudo ln -s /usr/share/phpmyadmin /usr/share/nginx/html
 
 sudo apt -y install php-mcrypt php-mbstring
 
-echo "======= Creating /etc/php/7.1/fpm/pool.d/$domain_name.conf ============"
-sudo echo '
-listen = /run/php/php7.1-fpm.sock
-pm = dynamic
-pm.max_children = 25
-pm.start_servers = 10
-pm.min_spare_servers = 5
-pm.max_spare_servers = 25
-pm.max_requests = 500
-
-' >> /etc/php/7.1/fpm/pool.d/$domain_name.conf
+# echo "======= Creating /etc/php/7.1/fpm/pool.d/$domain_name.conf ============"
+# sudo echo '
+# listen = /run/php/php7.1-fpm.sock
+# pm = dynamic
+# pm.max_children = 25
+# pm.start_servers = 10
+# pm.min_spare_servers = 5
+# pm.max_spare_servers = 25
+# pm.max_requests = 500
+#
+# ' >> /etc/php/7.1/fpm/pool.d/$domain_name.conf
 
 echo "======= Restarting Nginx and PHP-fpm ============"
 sudo service nginx restart
@@ -261,16 +261,6 @@ rm -f /etc/nginx/sites-available/$domain_name.conf
 #Config file
 echo "======= Creating NGINX $domain_name.conf ============"
 echo "
-
-# Expires map
-map $sent_http_content_type $expires {
-    default                    off;
-    text/html                  epoch;
-    text/css                   max;
-    application/javascript     max;
-    ~image/                    max;
-}
-
 server {
     listen 80;
     listen [::]:80;
@@ -287,8 +277,6 @@ server {
     location / {
         try_files \$uri \$uri/ /index.php?\$query_string;
     }
-
-    expires	$expires;
 
     location ~*  \.(jpg|jpeg|png|gif|ico|css|js|pdf)$ {
         expires 7d;
