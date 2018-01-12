@@ -22,7 +22,7 @@ echo $domain_name.$domain_extension
 
 # update packages
 echo "======= Updating Ubuntu ============"
-apt-get update
+apt-get -o Acquire::ForceIPv4=true update
 
 
 echo "======= Creating MySQL Root User ============"
