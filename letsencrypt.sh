@@ -32,16 +32,16 @@ echo "======= create directory for certificates ============"
 mkdir -p /etc/letsencrypt/
 
 echo "======= change permissions on /etc/letsencrypt/* to 0755 ============"
-sudo chmod -R 0755 /etc/letsencrypt/
+sudo chmod -R 0777 /etc/letsencrypt/
 
 echo "======= generating certificate ============"
-certbot certonly --webroot -w /var/www/$domain_name -d $domain_name.$domain_extension -m $email
+certbot certonly --webroot -w /var/www/$domain_name -d $domain_name.$domain_extension -d www.$domain_name.$domain_extension -m $email
 
 echo "======= list domains ============"
 ls /etc/letsencrypt/live/
 
 echo "======= list certificates ============"
-ls /etc/letsencrypt/live/$domain_name/
+ls /etc/letsencrypt/live/$domain_name.$domain_extension/
 
 # sed -n "H;${x;s/^\n//;s/index.php .*$/ssl on;\n&/;p;}"
 # sed -n "H;${x;s/^\n//;s/ssl on; .*$/ssl_certificate /etc/letsencrypt/live/$domain_name.$domain_extension/fullchain.pem;\n&/;p;}"

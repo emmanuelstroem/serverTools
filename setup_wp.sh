@@ -180,17 +180,17 @@ sudo sed -i "s/pm.min_spare_servers = 1/pm.min_spare_servers = 5/" /etc/php/7.1/
 sudo sed -i "s/pm.max_spare_servers = 3/pm.max_spare_servers = 25/" /etc/php/7.1/fpm/pool.d/www.conf
 sudo sed -i "s/;pm.max_requests = 500/pm.max_requests = 500/" /etc/php/7.1/fpm/pool.d/www.conf
 
-echo "======= Creating /etc/php/7.1/fpm/pool.d/$domain_name.conf ============"
-sudo echo '
-listen = /run/php/php7.1-fpm.sock
-pm = dynamic
-pm.max_children = 25
-pm.start_servers = 10
-pm.min_spare_servers = 5
-pm.max_spare_servers = 25
-pm.max_requests = 500
-
-' >> /etc/php/7.1/fpm/pool.d/$domain_name.conf
+# echo "======= Creating /etc/php/7.1/fpm/pool.d/$domain_name.conf ============"
+# sudo echo '
+# listen = /run/php/php7.1-fpm.sock
+# pm = dynamic
+# pm.max_children = 25
+# pm.start_servers = 10
+# pm.min_spare_servers = 5
+# pm.max_spare_servers = 25
+# pm.max_requests = 500
+#
+# ' >> /etc/php/7.1/fpm/pool.d/$domain_name.conf
 
 echo "======= Restarting NGINX and PHP-fpm ============"
 sudo service nginx restart
@@ -554,18 +554,16 @@ server {
     }
 
     # CACHING
-    location ~* .(ogg|ogv|svg|svgz|eot|otf|woff|mp4|ttf|css|rss|atom|js|jpg
-              |jpeg|gif|png|ico|zip|tgz|gz|rar|bz2|doc|xls|exe|ppt|tar|mid
-              |midi|wav|bmp|rtf)$ {
+    location ~* .(ogg|ogv|svg|svgz|eot|otf|woff|mp4|ttf|css|rss|atom|js|jpg|jpeg|gif|png|ico|zip|tgz|gz|rar|bz2|doc|xls|exe|ppt|tar|midi|midi|wav|bmp|rtf)$ {
       expires max;
       log_not_found off;
       access_log off;
     }
 
     # Deny public access to wp-config.php
-    location ~* wp-config.php {
-       deny all;
-    }
+    #location ~* wp-config.php {
+    #   deny all;
+    #}
 
     # Deny access to uploads that aren’t images, videos, music, etc.
     location ~* ^/wp-content/uploads/.*.(html|htm|shtml|php|js|swf)$ {
