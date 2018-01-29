@@ -242,6 +242,10 @@ sudo echo '
 user=root
 password=secret
 
+[mysqldump]
+user=root
+password=secret
+
 ' >> /root/.my.cnf
 
 echo "======= Setting Permissions of /root/.my.cnf to 0600 ============"
