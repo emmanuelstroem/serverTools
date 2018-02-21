@@ -260,10 +260,41 @@ rm -f /etc/nginx/sites-available/$domain_name.conf
 
 #Config file
 echo "======= Creating NGINX $domain_name.conf ============"
+
+
 echo "
+# Redirect HTTP requests to HTTPS
+#server {
+#     listen 80;
+#     listen [::]:80;
+
+#     server_name $domain_name.$domain_extension *.$domain_name.$domain_extension;
+#     rewrite ^ https://$server_name$request_uri? permanent;
+
+#     root /var/www/$domain_name;
+#     index index.html;
+#     location / {
+#         try_files $uri $uri/ =404;
+#       }
+#}
+
 server {
-    listen 80;
-    listen [::]:80;
+
+     #listen 443 ssl http2;
+     #listen [::]:443 http2;
+
+     listen 80;
+     listen [::]:80;
+
+     #ssl on;
+     #ssl_certificate /etc/letsencrypt/live/$domain_name.$domain_extension/fullchain.pem;
+     #ssl_certificate_key /etc/letsencrypt/live/$domain_name.$domain_extension/privkey.pem;
+
+     #ssl_protocols  TLSv1 TLSv1.1 TLSv1.2;
+
+    client_max_body_size 50m;
+
+
 
     root /var/www/$domain_name;
     index index.php index.html index.htm;
@@ -275,21 +306,27 @@ server {
     error_log /var/log/nginx/$domain_name.$domain_extension-error.log;
 
     location / {
-        try_files \$uri \$uri/ /index.php?\$query_string;
+        try_files $uri $uri/ /index.php?$query_string;
     }
 
     location ~*  \.(jpg|jpeg|png|gif|ico|css|js|pdf)$ {
         expires 7d;
     }
 
+
+    location ~ /.well-known {
+         allow all;
+         default_type "text/plain";
+    }
+
     location /phpmyadmin {
             root /usr/share/nginx/html;
             location ~ ^/phpmyadmin/(.+\.php)$ {
-                    try_files \$uri =404;
+                    try_files $uri =404;
                     root /usr/share/nginx/html;
                     fastcgi_pass unix:/run/php/php7.1-fpm.sock;
                     fastcgi_index index.php;
-                    fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
+                    fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
                     include /etc/nginx/fastcgi_params;
             }
             location ~* ^/phpmyadmin/(.+\.(jpg|jpeg|gif|css|png|js|ico|html|xml|txt))$ {
@@ -298,14 +335,42 @@ server {
     }
 
     location ~ \.php$ {
-        try_files \$uri /index.php =404;
+        try_files $uri /index.php =404;
         fastcgi_split_path_info ^(.+\.php)(/.+)$;
         fastcgi_pass unix:/run/php/php7.1-fpm.sock;
         fastcgi_index index.php;
-        fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
         include fastcgi_params;
     }
+
+
+    # CACHING
+    location ~* .(ogg|ogv|svg|svgz|eot|otf|woff|mp4|ttf|css|rss|atom|zip|tgz|gz|rar|bz2|doc|xls|exe|ppt|tar|mid|midi|wav|bmp|rtf)$ {
+        expires max;
+        log_not_found off;
+        access_log off;
+    }
+
+    # Deny public access to wp-config.php
+    location ~* wp-config.php {
+       deny all;
+    }
+
+    # Deny access to uploads that aren’t images, videos, music, etc.
+    location ~* ^/wp-content/uploads/.*.(html|htm|shtml|php|js|swf)$ {
+        deny all;
+    }
+
+    # Deny access to wp-login.php
+#    location = /wp-login.php {
+#        limit_req zone=one burst=1 nodelay;
+#        fastcgi_pass unix:/run/php/php7.1-fpm.sock;
+#        fastcgi_pass 127.0.0.1:9000;
+#    }
+
 } " >>/etc/nginx/sites-available/$domain_name.conf
+
+
 
 echo "======= Creating Symlink for config file ============"
 ln -s /etc/nginx/sites-available/$domain_name.conf /etc/nginx/sites-enabled/
