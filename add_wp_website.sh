@@ -384,7 +384,7 @@ echo "======= Adding domain to /etch/hosts  ============"
 ip_address=`ifconfig ${NET_IF} | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1'`
 
 echo "
-$ip_address		   $domain_name.$domain_extension
+$ip_address     $domain_name.$domain_extension
 " >>/etc/hosts
 
 echo "======= www-data owning the /var/www folder  ============"
@@ -398,3 +398,6 @@ sudo service nginx restart
 echo "======= Cleaning Up ============"
 apt-get -y autoremove
 apt-get -y clean
+
+echo "======= Remove Wordpress zip ============"
+rm -rf /var/www/latest.tar.gz
