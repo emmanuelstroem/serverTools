@@ -71,7 +71,7 @@ cat /home/$username/.ssh/authorized_keys
 
 exit
 
-echo $ssh_key >> /home/$username/.ssh/authorized_keys
+cat >> /home/$username/.ssh/authorized_keys < /home/$username/.ssh/id_rsa.pub
 
 echo " ************* - Create User + Set Home Directory ****************"
 useradd -d /home/$username $username
