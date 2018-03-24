@@ -53,18 +53,24 @@ echo " ************* - Create Authorized Keys File ****************"
 
 echo >> /home/$username/.ssh/id_rsa.pub
 
-cat >> /home/$username/.ssh/id_rsa.pub << EOF
-$ssh_key
-EOF
+echo ${ssh_key} >> /home/$username/.ssh/id_rsa.pub
 
 touch /home/$username/.ssh/authorized_keys
 
 echo " ************* - Add SSH Keys ****************"
 if [ -s "/home/$username/.ssh/id_rsa.pub" ]; then
-    echo "$ssh_key" >> /home/$username/.ssh/id_rsa.pub
+    echo ${ssh_key} >> /home/$username/.ssh/id_rsa.pub
 else
     echo "id_rsa.pub is NOT Empty"
 fi
+
+echo "==== ID_RSA.pub"
+cat /home/$username/.ssh/id_rsa.pub
+
+echo "==== AUTHORIZED_KEYS"
+cat /home/$username/.ssh/authorized_keys
+
+exit
 
 echo $ssh_key >> /home/$username/.ssh/authorized_keys
 
