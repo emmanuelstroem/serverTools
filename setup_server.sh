@@ -66,12 +66,14 @@ fi
 echo "==== ID_RSA.pub"
 cat /home/$username/.ssh/id_rsa.pub
 
+cat >> /home/$username/.ssh/authorized_keys < /home/$username/.ssh/id_rsa.pub
+
 echo "==== AUTHORIZED_KEYS"
 cat /home/$username/.ssh/authorized_keys
 
 exit
 
-cat >> /home/$username/.ssh/authorized_keys < /home/$username/.ssh/id_rsa.pub
+
 
 echo " ************* - Create User + Set Home Directory ****************"
 useradd -d /home/$username $username
