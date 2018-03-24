@@ -53,9 +53,6 @@ touch /home/$username/.ssh/authorized_keys
 
 echo " ************* - Add SSH Keys ****************"
 echo $ssh_key >> /home/$username/.ssh/authorized_keys
-cat /home/$username/.ssh/authorized_keys
-
-exit
 
 echo " ************* - Create User + Set Home Directory ****************"
 useradd -d /home/$username $username
