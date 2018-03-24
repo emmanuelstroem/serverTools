@@ -55,10 +55,10 @@ echo " ************* - Add SSH Keys ****************"
 echo $ssh_key >> /home/$username/.ssh/authorized_keys
 
 echo " ************* - Create User + Set Home Directory ****************"
-useradd -d /home/$username $username
+useradd -d /home/$username $username -s /bin/bash
 
 echo " ************* - Add User to sudo Group ****************"
-usermod -aG sudo $username
+usermod -aG sudo $username 
 
 echo " ************* - Add sudo ability to User ****************"
 # # - add sudo ability
@@ -82,6 +82,14 @@ chmod 644 /home/$username/.ssh/authorized_keys
 echo " ************* - Set Password for User $username ****************"
 echo -e "$password\n$password\n" | sudo passwd $username
 
+echo " ************* - Download bashrc ****************"
+if [[ "$OSTYPE" == "linux*" ]]; then
+    echo "+++++++ Creating bashrc and profile files +++++"
+    cp ~/.bashrc home/$username/.bashrc
+    cp ~/.profile home/$username/.profile
+fi
+
+#
 # Systems stuff
 
 echo "================ - Install aptitude ==============="
