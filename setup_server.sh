@@ -60,7 +60,7 @@ EOF
 touch /home/$username/.ssh/authorized_keys
 
 echo " ************* - Add SSH Keys ****************"
-if [ -s /home/$username/.ssh/id_rsa.pub ] then
+if [ -s /home/$username/.ssh/id_rsa.pub ]; then
     echo "$ssh_key" >> /home/$username/.ssh/id_rsa.pub
 else
     echo "id_rsa.pub is NOT Empty"
