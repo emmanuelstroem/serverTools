@@ -51,15 +51,13 @@ mkdir -p /home/$username/.ssh
 
 echo " ************* - Create Authorized Keys File ****************"
 
-echo >> /home/$username/.ssh/id_rsa.pub
-
-echo ${ssh_key} >> /home/$username/.ssh/id_rsa.pub
+echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC5BhQjg6WaR+0XDWPIXl8CErceSyGMhTUbZak1fA5wwvi8j2ax5CbF1CyWl7Rfd/tmz4lkPClrvhwgQiVNQ7T34en4ze1p9bZdh0BWdU2H2Cng6aUkWT+qQJNgiYR1que+ItTQcOzdzBZ2JCwxQsz1WRLSbdlnc3gXhjuGC4J2+TQk91osMcSONn/HuMRvpEGYUX+bZkatoxvwJx3Vtcl1awYHVOKa9c0js1QfNll3eUj35VUdwAIPaME56rD4QY6n3Io6iAN+yMG2bLayxEFoOIX+gkTxyw/UoMV0DW9DQmarvejTVjn8dnvnf8O7rwQLJuv2crNR1tm5f07i9QMz emmanuel@Emmanuels-MacBook-Pro.local" >> /home/$username/.ssh/id_rsa.pub
 
 touch /home/$username/.ssh/authorized_keys
 
 echo " ************* - Add SSH Keys ****************"
 if [ -s "/home/$username/.ssh/id_rsa.pub" ]; then
-    echo ${ssh_key} >> /home/$username/.ssh/id_rsa.pub
+    echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC5BhQjg6WaR+0XDWPIXl8CErceSyGMhTUbZak1fA5wwvi8j2ax5CbF1CyWl7Rfd/tmz4lkPClrvhwgQiVNQ7T34en4ze1p9bZdh0BWdU2H2Cng6aUkWT+qQJNgiYR1que+ItTQcOzdzBZ2JCwxQsz1WRLSbdlnc3gXhjuGC4J2+TQk91osMcSONn/HuMRvpEGYUX+bZkatoxvwJx3Vtcl1awYHVOKa9c0js1QfNll3eUj35VUdwAIPaME56rD4QY6n3Io6iAN+yMG2bLayxEFoOIX+gkTxyw/UoMV0DW9DQmarvejTVjn8dnvnf8O7rwQLJuv2crNR1tm5f07i9QMz emmanuel@Emmanuels-MacBook-Pro.local" >> /home/$username/.ssh/id_rsa.pub
 else
     echo "id_rsa.pub is NOT Empty"
 fi
