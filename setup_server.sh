@@ -22,6 +22,7 @@ fi
 echo "======= Got Server User Details ============"
 echo $username
 echo $password
+echo $ssh_key
 
 # Security measures for SSH
 #
