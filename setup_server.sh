@@ -13,9 +13,10 @@ if [ $# -gt 0 ]; then
     ssh_key="$3"
 else
     echo "Your command line contains no arguments"
-		username="manu"
+	username="manu"
     password=".manu@L1n0de2017!"
-    ssh_key ="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC5BhQjg6WaR+0XDWPIXl8CErceSyGMhTUbZak1fA5wwvi8j2ax5CbF1CyWl7Rfd/tmz4lkPClrvhwgQiVNQ7T34en4ze1p9bZdh0BWdU2H2Cng6aUkWT+qQJNgiYR1que+ItTQcOzdzBZ2JCwxQsz1WRLSbdlnc3gXhjuGC4J2+TQk91osMcSONn/HuMRvpEGYUX+bZkatoxvwJx3Vtcl1awYHVOKa9c0js1QfNll3eUj35VUdwAIPaME56rD4QY6n3Io6iAN+yMG2bLayxEFoOIX+gkTxyw/UoMV0DW9DQmarvejTVjn8dnvnf8O7rwQLJuv2crNR1tm5f07i9QMz emmanuel@Emmanuels-MacBook-Pro.local"
+    ssh_key ="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC5BhQjg6WaR+0XDWPIXl8CErceSyGMhTUbZak1fA5wwvi8j2ax5CbF1CyWl7Rfd/tmz4lkPClrvhwgQiVNQ7T34en4ze1p9bZdh0BWdU2H2Cng6aUkWT+qQJNgiYR1que+ItTQcOzdzBZ2JCwxQsz1WRLSbdlnc3gXhjuGC4J2+TQk91osMcSONn/HuMRvpEGYUX+bZkatoxvwJx3Vtcl1awYHVOKa9c0js1QfNll3eUj35VUdwAIPaME56rD4QY6n3Io6iAN+yMG2bLayxEFoOIX+gkTxyw/UoMV0DW9DQmarvejTVjn8dnvnf8O7rwQLJuv2crNR1tm5f07i9QMz emmanuel@Emmanuels-MacBook-Pro.local
+"
 fi
 
 echo "======= Got Domain Name ============"
@@ -52,9 +53,7 @@ echo " ************* - Create Authorized Keys File ****************"
 touch /home/$username/.ssh/authorized_keys
 
 echo " ************* - Add SSH Keys ****************"
-cat > /home/$username/.ssh/authorized_keys << EOF
-$ssh_key
-EOF
+echo $ssh_key >> /home/$username/.ssh/authorized_keys
 
 echo " ************* - Create User + Set Home Directory ****************"
 useradd -d /home/$username $username
