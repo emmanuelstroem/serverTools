@@ -22,7 +22,7 @@ echo "======= Got Server User Details ============"
 echo $username
 echo $password
 echo $ssh_key
-echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC5BhQjg6WaR+0XDWPIXl8CErceSyGMhTUbZak1fA5wwvi8j2ax5CbF1CyWl7Rfd/tmz4lkPClrvhwgQiVNQ7T34en4ze1p9bZdh0BWdU2H2Cng6aUkWT+qQJNgiYR1que+ItTQcOzdzBZ2JCwxQsz1WRLSbdlnc3gXhjuGC4J2+TQk91osMcSONn/HuMRvpEGYUX+bZkatoxvwJx3Vtcl1awYHVOKa9c0js1QfNll3eUj35VUdwAIPaME56rD4QY6n3Io6iAN+yMG2bLayxEFoOIX+gkTxyw/UoMV0DW9DQmarvejTVjn8dnvnf8O7rwQLJuv2crNR1tm5f07i9QMz emmanuel@Emmanuels-MacBook-Pro.local"
+# echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC5BhQjg6WaR+0XDWPIXl8CErceSyGMhTUbZak1fA5wwvi8j2ax5CbF1CyWl7Rfd/tmz4lkPClrvhwgQiVNQ7T34en4ze1p9bZdh0BWdU2H2Cng6aUkWT+qQJNgiYR1que+ItTQcOzdzBZ2JCwxQsz1WRLSbdlnc3gXhjuGC4J2+TQk91osMcSONn/HuMRvpEGYUX+bZkatoxvwJx3Vtcl1awYHVOKa9c0js1QfNll3eUj35VUdwAIPaME56rD4QY6n3Io6iAN+yMG2bLayxEFoOIX+gkTxyw/UoMV0DW9DQmarvejTVjn8dnvnf8O7rwQLJuv2crNR1tm5f07i9QMz emmanuel@Emmanuels-MacBook-Pro.local"
 
 # Security measures for SSH
 #
