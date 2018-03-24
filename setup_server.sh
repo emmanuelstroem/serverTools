@@ -83,7 +83,7 @@ echo " ************* - Set Password for User $username ****************"
 echo -e "$password\n$password\n" | sudo passwd $username
 
 echo " ************* - Download bashrc ****************"
-if [[ "$OSTYPE" == "linux*" ]]; then
+if [[ "$OSTYPE" == "linux-gnu" ]]; then
     echo "+++++++ Creating bashrc and profile files +++++"
     cp ~/.bashrc home/$username/.bashrc
     cp ~/.profile home/$username/.profile
