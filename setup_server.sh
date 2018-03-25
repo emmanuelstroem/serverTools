@@ -84,8 +84,8 @@ echo -e "$password\n$password\n" | sudo passwd $username
 
 if [ $OSTYPE == "linux-gnu" ]; then
     echo "+++++++ Creating bashrc and profile files +++++"
-    cp ~/.bashrc home/$username/.bashrc
-    cp ~/.profile home/$username/.profile
+    cp $HOME/.bashrc /home/$username/.bashrc
+    cp $HOME/.profile /home/$username/.profile
 fi
 
 #
